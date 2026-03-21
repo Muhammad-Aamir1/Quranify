@@ -1083,6 +1083,36 @@ html, body {
 }
 .consent-revoke-btn:hover { background: rgba(224,85,85,0.2); }
 
+@media screen and (max-width: 768px) {
+  html, body { font-size: 15px; }
+  body { padding: 0; margin: 0; }
+
+  .lock-top, .lock-verse-area, .onboard-wrap, .completion-inner, .modal-sheet { padding: 16px !important; width: 100%; max-width: 100%; }
+  .lock-top { padding: 14px 12px 0; }
+  .lock-verse-area { padding: 14px 12px 20px; }
+
+  .icon-btn, .mic-btn, .onboard-btn, .modal-btn, .skip-badge { min-height: 44px; }
+  .icon-btn, .mic-btn { width: 44px; height: 44px; font-size: 1.1rem; }
+
+  .arabic-verse { font-size: clamp(1.1rem, 5vw, 1.8rem); line-height: 1.8; }
+  .surah-badge { font-size: 0.55rem; padding: 4px 12px; }
+  .onboard-title { font-size: 1.35rem; }
+  .onboard-body, .consent-desc, .conent-banner-body { font-size: 0.85rem; }
+  .onboard-checkbox-row { padding: 12px 10px; }
+
+  .scrolling-area, .verse-list, #feed, .heatmap-grid { max-width: 100%; }
+
+  .modal-sheet { border-radius: 16px; padding: 20px; }
+  .toast { bottom: 20px; left: 50%; transform: translateX(-50%) translateY(0); }
+}
+
+@media screen and (max-width: 480px) {
+  .onboard-wrap, .completion-inner, .modal-sheet { padding: 12px !important; }
+  .onboard-title { font-size: 1.2rem; }
+  .onboard-btn, .modal-btn, .icon-btn, .mic-btn { padding: 12px; }
+  .arabic-verse { font-size: clamp(1rem, 6vw, 1.5rem); }
+}
+
 </style>
 </head>
 <body>
@@ -1893,6 +1923,9 @@ function supportsRecognition() { return !!(window.SpeechRecognition || window.we
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
 function requestMicPermission() {
   if (!window.isSecureContext) {
     showToast('Microphone requires a secure connection (HTTPS). Use HTTPS or enable in browser settings.');
@@ -1902,7 +1935,8 @@ function requestMicPermission() {
     showToast('Microphone permissions are unavailable in this browser.');
     return Promise.resolve(false);
   }
-  return navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+
+  const request = () => navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     stream.getTracks().forEach(t => t.stop());
     showToast('Microphone permission granted ✓');
     return true;
@@ -1911,6 +1945,22 @@ function requestMicPermission() {
     showToast('Microphone permission required for voice mode.');
     return false;
   });
+
+  if (navigator.permissions && navigator.permissions.query) {
+    return navigator.permissions.query({ name: 'microphone' }).then(status => {
+      if (status.state === 'granted') {
+        showToast('Microphone permission already granted ✓');
+        return true;
+      }
+      if (status.state === 'denied') {
+        showToast('Microphone access denied. Please enable it in browser settings.');
+        return false;
+      }
+      return request();
+    }).catch(() => request());
+  }
+
+  return request();
 }
 function toggleMic() {
   if (getTodayStatus() === 'read') { showToast('Already completed today! ✓'); return; }
@@ -1954,7 +2004,7 @@ function startSpeechRecognition() {
   try {
     recognition = new SR();
     recognition.lang = 'ar';
-    recognition.continuous = true; // Keep continuous for better mobile support
+    recognition.continuous = !isIOS(); // Disable continuous on iOS
     recognition.interimResults = true;
     recognition.maxAlternatives = isMobile() ? 1 : 3; // Reduce on mobile
     recognition.onstart = () => { logToPage('Speech recognition started'); recognizing = true; micMode = 'speech'; restartAttempts = 0; setMicListening(true); setMicStatus('Listening\u2026 read aloud in Arabic', 'active'); startBypassTimer(); showToast('Voice recognition started'); };
