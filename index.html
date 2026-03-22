@@ -154,16 +154,28 @@ html, body {
 .arabic-verse .word {
   display: inline;
   cursor: default;
-  transition: color 0.3s, text-shadow 0.3s;
+  transition: all 0.25s ease;
   padding: 0 2px;
 }
 .arabic-verse .word.done {
   color: var(--emerald);
-  text-shadow: 0 0 20px rgba(46,204,113,0.4);
+  text-shadow: 0 0 20px rgba(46,204,113,0.6);
+  animation: word-done 0.5s ease;
 }
 .arabic-verse .word.current {
-  color: var(--amber);
-  text-shadow: 0 0 16px rgba(224,168,48,0.5);
+  color: var(--gold-l);
+  text-shadow: 0 0 24px rgba(224,180,74,0.8), 0 0 12px rgba(46,204,113,0.6);
+  animation: pulse-word 0.5s ease-in-out infinite;
+  font-weight: 600;
+}
+@keyframes word-done {
+  0% { scale: 1; opacity: 0.7; }
+  50% { scale: 1.2; }
+  100% { scale: 1; opacity: 1; }
+}
+@keyframes pulse-word {
+  0%,100% { scale: 1; }
+  50% { scale: 1.25; }
 }
 
 .transliteration {
@@ -1083,6 +1095,16 @@ html, body {
 }
 .consent-revoke-btn:hover { background: rgba(224,85,85,0.2); }
 
+@media screen and (max-width: 1200px) {
+  .onboard-wrap, .completion-inner, .modal-sheet { max-width: 100% !important; }
+}
+
+@media screen and (max-width: 1024px) {
+  .lock-top, .lock-verse-area { padding: 18px 20px; }
+  .icon-btn, .mic-btn { width: 40px; height: 40px; }
+  .arabic-verse { font-size: clamp(1.3rem, 4vw, 2rem); }
+}
+
 @media screen and (max-width: 768px) {
   html, body { font-size: 15px; }
   body { padding: 0; margin: 0; }
@@ -1097,20 +1119,40 @@ html, body {
   .arabic-verse { font-size: clamp(1.1rem, 5vw, 1.8rem); line-height: 1.8; }
   .surah-badge { font-size: 0.55rem; padding: 4px 12px; }
   .onboard-title { font-size: 1.35rem; }
-  .onboard-body, .consent-desc, .conent-banner-body { font-size: 0.85rem; }
+  .onboard-body, .consent-desc, .consent-banner-body { font-size: 0.85rem; }
   .onboard-checkbox-row { padding: 12px 10px; }
 
   .scrolling-area, .verse-list, #feed, .heatmap-grid { max-width: 100%; }
 
   .modal-sheet { border-radius: 16px; padding: 20px; }
-  .toast { bottom: 20px; left: 50%; transform: translateX(-50%) translateY(0); }
+  .toast { bottom: 20px; left: 50%; transform: translateX(-50%) translateY(0); font-size: 0.65rem; }
+}
+
+@media screen and (max-width: 600px) {
+  .lock-top { padding: 12px 10px 0; }
+  .lock-verse-area { padding: 12px 10px 16px; }
+  .arabic-verse { font-size: clamp(1rem, 5vw, 1.6rem); line-height: 1.7; }
+  .onboard-title { font-size: 1.25rem; }
+  .onboard-body { font-size: 0.8rem; }
 }
 
 @media screen and (max-width: 480px) {
-  .onboard-wrap, .completion-inner, .modal-sheet { padding: 12px !important; }
-  .onboard-title { font-size: 1.2rem; }
-  .onboard-btn, .modal-btn, .icon-btn, .mic-btn { padding: 12px; }
-  .arabic-verse { font-size: clamp(1rem, 6vw, 1.5rem); }
+  .lock-top, .lock-verse-area { padding: 10px 8px; }
+  .lock-time { font-size: 0.6rem; }
+  .onboard-wrap, .completion-inner, .modal-sheet { padding: 10px !important; }
+  .onboard-title { font-size: 1.1rem; }
+  .onboard-btn, .modal-btn, .icon-btn, .mic-btn { padding: 12px; min-height: 40px; font-size: 0.65rem; }
+  .arabic-verse { font-size: clamp(0.95rem, 5vw, 1.4rem); line-height: 1.6; }
+  .surah-badge { font-size: 0.50rem; padding: 2px 8px; }
+  .toast { bottom: 12px; left: 50%; transform: translateX(-50%) translateY(0); font-size: 0.58rem; padding: 6px 12px; }
+  .modal-sheet { border-radius: 12px; padding: 12px; }
+}
+
+@media screen and (max-width: 320px) {
+  html, body { font-size: 13px; }
+  .arabic-verse { font-size: clamp(0.85rem, 5vw, 1.2rem); }
+  .onboard-title { font-size: 1rem; }
+  .onboard-btn, .modal-btn { padding: 10px; font-size: 0.6rem; }
 }
 
 </style>
@@ -1644,10 +1686,18 @@ function loadState() {
   try {
     const saved = localStorage.getItem('nural_v3');
     if (saved) Object.assign(state, JSON.parse(saved));
-  } catch(e) {}
+  } catch(e) {
+    console.error('Failed to load state:', e);
+    localStorage.clear();
+  }
 }
 function saveState() {
-  try { localStorage.setItem('nural_v3', JSON.stringify(state)); } catch(e) {}
+  try {
+    localStorage.setItem('nural_v3', JSON.stringify(state));
+  } catch(e) {
+    console.error('Failed to save state:', e);
+    showToast('Warning: Could not save progress');
+  }
 }
 function getTodayStatus() { return state.dailyLog[todayKey()] || 'pending'; }
 function getTodayVerse()   { return VERSES[verseIdxForDate(todayKey())]; }
@@ -1749,7 +1799,12 @@ updateClock();
 // ═══════════════════════════════════════════════════════
 //  THEME
 // ═══════════════════════════════════════════════════════
-function toggleTheme() { state.darkMode = !state.darkMode; applyTheme(); saveState(); }
+function toggleTheme() {
+  state.darkMode = !state.darkMode;
+  applyTheme();
+  saveState();
+  showToast(state.darkMode ? 'Dark mode' : 'Light mode');
+}
 function applyTheme() {
   document.body.classList.toggle('light', !state.darkMode);
   const t = document.getElementById('themeToggle');
@@ -1772,10 +1827,11 @@ function updateDailyVersesUI() {
   });
 }
 function setDailyVerses(n, btn) {
+  if (n < 1 || n > 7 || typeof n !== 'number') return;
   state.dailyVerses = n;
   updateDailyVersesUI();
   saveState();
-  showToast('Daily goal: ' + n + ' verse' + (n > 1 ? 's' : ''));
+  showToast('Daily goal set: ' + n + ' verse' + (n > 1 ? 's' : ''));
 }
 function updateSettingsConsent() {
   const banner = document.getElementById('consentBanner');
@@ -2070,34 +2126,64 @@ function processTranscript(transcript) {
 let simInterval = null;
 function startSimulation() {
   stopAll(); micMode = 'sim'; setMicListening(true);
-  setMicStatus('\u25B6 Auto-demo: words highlight as you read', 'active');
+  setMicStatus('\u25B6 Auto-demo: words will highlight automatically', 'active');
   hideFallbackPanel(); startBypassTimer();
   const v = getTodayVerse();
-  const remaining = Array.from({length: v.words.length - wordsDone}, (_, i) => wordsDone + i);
+  const remaining = v.words.length - wordsDone;
   let i = 0;
   simInterval = setInterval(() => {
-    if (i < remaining.length) { markWordDone(remaining[i]); i++; }
-    else { clearInterval(simInterval); micMode = 'unknown'; }
-  }, 750);
+    if (i < remaining) {
+      markWordDone(wordsDone + i);
+      i++;
+      if (i === remaining) {
+        clearInterval(simInterval);
+        simInterval = null;
+        showToast('Demo complete! \u2714');
+      }
+    }
+  }, 600 + Math.random() * 150);
 }
 function stopSimulation() { clearInterval(simInterval); simInterval = null; micMode = 'unknown'; }
 function startTapMode() {
-  stopAll(); micMode = 'tap'; hideFallbackPanel(); setMicListening(false);
-  setMicStatus('\uD83D\uDC46 Tap each word as you read it', 'active');
+  stopAll(); micMode = 'tap'; hideFallbackPanel(); setMicListening(true);
+  setMicStatus('\uD83D\uDC46 Tap each word in sequence to mark complete', 'active');
   document.getElementById('micBtn').innerHTML = '\uD83D\uDC46';
   document.getElementById('micBtn').style.borderColor = 'var(--amber)';
   document.getElementById('micBtn').style.color = 'var(--amber)';
+  document.getElementById('micBtn').onclick = () => { if (micMode === 'tap') stopTapMode(); };
   startBypassTimer();
   document.querySelectorAll('#arabicVerse .word').forEach((w, i) => {
     w.style.cursor = 'pointer';
-    w.onclick = () => { if (micMode !== 'tap') return; if (i === wordsDone) markWordDone(i); else if (i > wordsDone) showToast('Read in order \u2190'); };
+    w.style.userSelect = 'none';
+    w.classList.add('tap-mode');
+    w.onclick = (e) => {
+      e.stopPropagation();
+      if (micMode !== 'tap') return;
+      if (i === wordsDone) {
+        markWordDone(i);
+        if (i + 1 === wordsTotal) showToast('Verse complete! \u2714');
+      } else if (i < wordsDone) {
+        showToast('Already done');
+      } else {
+        showToast('Next: word #' + (wordsDone + 1));
+      }
+    };
   });
 }
 function stopTapMode() {
   micMode = 'unknown';
+  setMicListening(false);
+  setMicStatus('Tap \uD83C\uDFA4 to try speech or continue tapping', '');
   document.getElementById('micBtn').innerHTML = '&#127908;';
   document.getElementById('micBtn').style.borderColor = '';
   document.getElementById('micBtn').style.color = '';
+  document.getElementById('micBtn').onclick = toggleMic;
+  document.querySelectorAll('#arabicVerse .word').forEach(w => {
+    w.style.cursor = 'default';
+    w.style.userSelect = '';
+    w.classList.remove('tap-mode');
+    w.onclick = null;
+  });
   document.querySelectorAll('#arabicVerse .word').forEach(w => { w.style.cursor = ''; w.onclick = null; });
 }
 function stopAll() { stopRecognition(); stopSimulation(); stopTapMode(); clearBypassTimer(); }
