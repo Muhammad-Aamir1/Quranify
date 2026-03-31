@@ -1049,6 +1049,152 @@ html, body {
 .skip-badge-status.available { background: var(--emerald-f); color: var(--emerald); border: 1px solid var(--emerald-d); }
 .skip-badge-status.used-tag { background: rgba(224,85,85,0.1); color: var(--red); border: 1px solid rgba(224,85,85,0.3); }
 
+/* Network connectivity banner */
+.network-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 8px;
+  z-index: 1000;
+  transition: opacity 0.5s, transform 0.5s;
+}
+.network-banner.online {
+  background: var(--emerald);
+  color: #fff;
+}
+.network-banner.offline {
+  background: var(--amber);
+  color: #000;
+}
+.network-banner.hidden {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* Timer button */
+.timer-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--amber);
+  background: rgba(224,168,48,0.1);
+  color: var(--amber);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: all 0.3s;
+  position: relative;
+}
+.timer-btn:hover {
+  background: rgba(224,168,48,0.2);
+  transform: scale(1.05);
+}
+.timer-btn.running {
+  border-color: var(--emerald);
+  background: var(--emerald-f);
+  color: var(--emerald);
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+.timer-btn.expired {
+  border-color: var(--red);
+  background: rgba(224,85,85,0.1);
+  color: var(--red);
+}
+@keyframes timer-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(46,204,113,0); }
+}
+.timer-label {
+  font-size: 0.5rem;
+  font-weight: normal;
+  margin-top: -2px;
+}
+
+/* Close app button */
+.close-app-btn {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface2);
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.close-app-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  background: rgba(224,85,85,0.15);
+  border-color: var(--red);
+  color: var(--red);
+}
+.close-app-btn:hover {
+  background: rgba(224,85,85,0.25);
+}
+
+/* Quran progress */
+.quran-progress {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.quran-progress-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--text2);
+}
+.quran-progress-value {
+  font-family: 'Spectral', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--gold-l);
+}
+
+/* Show another verse button */
+.another-verse-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  background: var(--gold-f);
+  color: var(--gold-l);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+}
+.another-verse-btn:hover {
+  background: var(--gold);
+  color: var(--bg);
+}
+
 /* consent banner in settings */
 .consent-banner {
   background: var(--surface);
@@ -1265,6 +1411,11 @@ html, body {
   </div>
 </div>
 
+<!-- Network Banner -->
+<div id="networkBanner" class="network-banner hidden">
+  <span id="networkBannerText"></span>
+</div>
+
 <div id="lockScreen" class="screen">
   <div class="lock-bg"></div>
 
@@ -1277,6 +1428,12 @@ html, body {
   </div>
 
   <div class="lock-verse-area">
+    <!-- Quran Progress -->
+    <div class="quran-progress">
+      <span class="quran-progress-text">Quran Completed</span>
+      <span class="quran-progress-value" id="quranProgressValue">0%</span>
+    </div>
+
     <div class="surah-badge" id="surahBadge">Al-Baqarah · 2:286</div>
 
     <div class="arabic-verse" id="arabicVerse">
@@ -1309,6 +1466,22 @@ html, body {
     <div id="debugTranscript" style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--emerald);opacity:0.7;text-align:center;min-height:18px;padding:0 8px;word-break:break-all;max-width:100%;overflow:hidden;direction:rtl;"></div>
     <div id="debugLog" style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--gray);opacity:0.5;text-align:left;min-height:18px;padding:0 8px;max-width:100%;overflow:hidden;"></div>
     <div class="mic-status" id="micStatus">Tap 🎤 to start reading aloud</div>
+
+    <!-- 60 Second Timer Button -->
+    <button class="timer-btn" id="timerBtn" onclick="resetTimer()">
+      <span id="timerDisplay">60</span>
+      <span class="timer-label">SEC</span>
+    </button>
+
+    <!-- Show Another Verse Button -->
+    <button class="another-verse-btn" id="anotherVerseBtn" onclick="showAnotherVerse()">
+      📖 Show Another Verse
+    </button>
+
+    <!-- Close App Button -->
+    <button class="close-app-btn" id="closeAppBtn" onclick="closeApp()">
+      ✕ Close App
+    </button>
 
     <!-- Fallback panel — shown when mic fails -->
     <div id="fallbackPanel" style="display:none;flex-direction:column;align-items:center;gap:8px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
@@ -1781,7 +1954,7 @@ function goTo(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
   if (screenId === 'homeScreen')     { updateHomeScreen(); }
-  if (screenId === 'lockScreen')     { renderVerse(); updateSkipBadge(); }
+  if (screenId === 'lockScreen')     { renderVerse(); updateSkipBadge(); startTimer(); updateQuranProgress(); }
   if (screenId === 'settingsScreen') { updateSettingsConsent(); updateSettingsSkip(); }
 }
 
@@ -1902,6 +2075,10 @@ function renderVerse() {
   wordsDone = 0;
   const mb = document.getElementById('micBtn');
   if (mb) { mb.innerHTML = '&#127908;'; mb.style.borderColor = ''; mb.style.color = ''; }
+
+  // Reset timer and close app button
+  resetTimerState();
+
   hideFallbackPanel();
   const dbg = document.getElementById('debugTranscript');
   if (dbg) dbg.textContent = '';
@@ -1958,6 +2135,7 @@ function onVerseComplete() {
     else state.streak = 1;
     if (state.streak > state.bestStreak) state.bestStreak = state.streak;
     saveState();
+    updateQuranProgress();
   }
   document.getElementById('completionStreak').textContent = state.streak;
   document.getElementById('completionTotalRead').textContent = state.totalRead;
@@ -2311,6 +2489,7 @@ function updateHomeScreen() {
   document.getElementById('statStreak').textContent = state.streak;
   document.getElementById('statBest').textContent = state.bestStreak;
   document.getElementById('statTotalRead').textContent = state.totalRead;
+  updateQuranProgress();
   const logEntries = Object.values(state.dailyLog);
   const readCount = logEntries.filter(v => v === 'read').length;
   const unreadCount = logEntries.filter(v => v !== 'read' && v !== 'excused').length;
@@ -2400,6 +2579,163 @@ function showToast(msg) {
 function logToPage(msg) {
   const log = document.getElementById('debugLog');
   if (log) log.textContent = msg;
+}
+
+// ═══════════════════════════════════════════════════════
+//  NETWORK CONNECTIVITY BANNER
+// ═══════════════════════════════════════════════════════
+function updateNetworkBanner() {
+  const banner = document.getElementById('networkBanner');
+  const bannerText = document.getElementById('networkBannerText');
+  if (!banner || !bannerText) return;
+
+  if (navigator.onLine) {
+    banner.className = 'network-banner online';
+    bannerText.textContent = '✓ Connected';
+    // Hide green banner after 2 seconds
+    setTimeout(() => {
+      banner.classList.add('hidden');
+    }, 2000);
+  } else {
+    banner.className = 'network-banner offline';
+    bannerText.textContent = '⚠ Offline - No Internet Connection';
+    banner.classList.remove('hidden');
+  }
+}
+
+window.addEventListener('online', updateNetworkBanner);
+window.addEventListener('offline', updateNetworkBanner);
+
+// Check on load
+updateNetworkBanner();
+
+// ═══════════════════════════════════════════════════════
+//  60-SECOND TIMER
+// ═══════════════════════════════════════════════════════
+let timerInterval = null;
+let timerSeconds = 60;
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerSeconds = 60;
+  updateTimerDisplay();
+
+  const timerBtn = document.getElementById('timerBtn');
+  if (timerBtn) timerBtn.classList.add('running');
+
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    updateTimerDisplay();
+
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      timerExpired();
+    }
+  }, 1000);
+}
+
+function resetTimer() {
+  startTimer();
+}
+
+function resetTimerState() {
+  clearInterval(timerInterval);
+  timerSeconds = 60;
+  updateTimerDisplay();
+
+  const timerBtn = document.getElementById('timerBtn');
+  const closeAppBtn = document.getElementById('closeAppBtn');
+
+  if (timerBtn) {
+    timerBtn.classList.remove('running', 'expired');
+  }
+  if (closeAppBtn) {
+    closeAppBtn.classList.remove('visible');
+  }
+}
+
+function updateTimerDisplay() {
+  const timerDisplay = document.getElementById('timerDisplay');
+  if (timerDisplay) {
+    timerDisplay.textContent = timerSeconds;
+  }
+}
+
+function timerExpired() {
+  const timerBtn = document.getElementById('timerBtn');
+  const closeAppBtn = document.getElementById('closeAppBtn');
+
+  if (timerBtn) {
+    timerBtn.classList.remove('running');
+    timerBtn.classList.add('expired');
+  }
+
+  // Make close app button visible
+  if (closeAppBtn) {
+    closeAppBtn.classList.add('visible');
+  }
+}
+
+function closeApp() {
+  // Try to close the window (works for windows opened by scripts)
+  window.close();
+  // Fallback: show a message
+  showToast('You can now close this tab');
+  // For mobile: try to go back in history
+  if (window.history.length > 1) {
+    window.history.back();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SHOW ANOTHER VERSE
+// ═══════════════════════════════════════════════════════
+function showAnotherVerse() {
+  // Get a random verse that's not today's verse
+  const todayIdx = verseIdxForDate(todayKey());
+  let newIdx;
+  do {
+    newIdx = Math.floor(Math.random() * VERSES.length);
+  } while (newIdx === todayIdx);
+
+  const newVerse = VERSES[newIdx];
+
+  // Update the display
+  wordsTotal = newVerse.words.length;
+  wordsDone = 0;
+
+  document.getElementById('surahBadge').textContent = newVerse.surah;
+  document.getElementById('arabicVerse').innerHTML = newVerse.words.map((w, i) =>
+    '<span class="word ' + (i === 0 ? 'current' : '') + '" data-idx="' + i + '">' + w + '</span> '
+  ).join('');
+  document.getElementById('translit').textContent = state.showTranslit ? newVerse.translit : '';
+  document.getElementById('translation').textContent = '"' + newVerse.translation + '"';
+  document.getElementById('summaryArabic').textContent = newVerse.arabic;
+  document.getElementById('summaryTranslation').textContent = '"' + newVerse.translation + '"';
+  updateProgress();
+
+  // Reset timer
+  resetTimer();
+
+  // Reset mic status
+  setMicStatus('Tap 🎤 to start reading aloud', '');
+
+  showToast('New verse loaded');
+}
+
+// ═══════════════════════════════════════════════════════
+//  QURAN PROGRESS
+// ═══════════════════════════════════════════════════════
+function updateQuranProgress() {
+  const progressValue = document.getElementById('quranProgressValue');
+  if (!progressValue) return;
+
+  // Total verses in Quran = 6236 (commonly accepted count)
+  const TOTAL_QURAN_VERSES = 6236;
+  const versesRead = state.totalRead;
+  const percentage = ((versesRead / TOTAL_QURAN_VERSES) * 100).toFixed(2);
+
+  progressValue.textContent = percentage + '%';
 }
 
 // ═══════════════════════════════════════════════════════

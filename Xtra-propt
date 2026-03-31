@@ -1,15 +1,8 @@
-i want to all data to stored on user local  storage for pc and mobile storage for mobile
 
-also show a UI banner when i am connected to internet and when not connected to internet
+ASK the claude to remove  all the UI and functionality related to screen lock from the app
 
-whne not connected show a banner yellow and when connected show a green banner
+make the app responsive for pc/ios/android devices
 
-i want to change the feature of daily screen lock in replacement of that i  need to set a button with timer of below microphone buttom , a timer of 60 seconds and when  it finishes make  "close app" button visible from the a greyed out button color                                                                   
-
-remove all the UI related to screen lock and add above fincutions 
-
-above the quran verse on the app i want to see a UI which shows % of quran completed which is equals to total no of verses read by user / total verse present in quran.
-
-Also add a new button  above the close app button to ask user to show  one another verse on the app and then reset the timer of close app button to count again from 60 seconds
-
+the app doesn't ask for permission when ran on android devices also check for ios devices as well.
+ 
  
