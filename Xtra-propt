@@ -12,4 +12,10 @@ above the quran verse on the app i want to see a UI which shows % of quran compl
 
 Also add a new button  above the close app button to ask user to show  one another verse on the app and then reset the timer of close app button to count again from 60 seconds
 
- 
+
+
+ Which features would you like me to implement? 
+I recommend starting with:
+1. Haptic Feedback (quick, improves mobile feel)
+2. Service Worker (offline support)
+3. Audio Recitation (enhances the reading experience)
