@@ -1556,9 +1556,9 @@ html, body {
       <button onclick="openModal('micHelpModal')" style="width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text3);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;cursor:pointer;">❓ How to Enable Microphone</button>
     </div>
 
-    <button class="bypass-btn" id="bypassBtn" onclick="showBypassModal()">
+    <!-- <button class="bypass-btn" id="bypassBtn" onclick="showBypassModal()">
       Skip for now (emergency only)
-    </button>
+    </button> -->
   </div>
 </div>
 
@@ -2851,12 +2851,17 @@ function timerExpired() {
     timerBtn.classList.add('expired');
   }
 
+  // Always show close button when timer ends, regardless of reading completion
+  if (closeAppBtn) {
+    closeAppBtn.classList.add('visible');
+  }
+  
   if (verseCompletedWaitingForTimer) {
-    if (closeAppBtn) {
-      closeAppBtn.classList.add('visible');
-    }
     setMicStatus('Time\u2019s up! Close app or show another verse', 'active');
     showToast('Timer complete! You can close or show another verse');
+  } else {
+    setMicStatus('Time\u2019s up! Close app or continue reading', 'active');
+    showToast('Time\u2019s up! Close or continue without timer');
   }
 }
 

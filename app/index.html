@@ -2851,12 +2851,17 @@ function timerExpired() {
     timerBtn.classList.add('expired');
   }
 
+  // Always show close button when timer ends, regardless of reading completion
+  if (closeAppBtn) {
+    closeAppBtn.classList.add('visible');
+  }
+  
   if (verseCompletedWaitingForTimer) {
-    if (closeAppBtn) {
-      closeAppBtn.classList.add('visible');
-    }
     setMicStatus('Time\u2019s up! Close app or show another verse', 'active');
     showToast('Timer complete! You can close or show another verse');
+  } else {
+    setMicStatus('Time\u2019s up! Close app or continue reading', 'active');
+    showToast('Time\u2019s up! Close or continue without timer');
   }
 }
 
