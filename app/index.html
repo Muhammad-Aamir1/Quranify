@@ -133,6 +133,7 @@ html, body {
   flex-shrink: 0;
 }
 .icon-btn:hover { background: var(--gold-f); color: var(--gold-l); border-color: var(--gold); }
+.icon-btn.playing { color: var(--emerald); border-color: var(--emerald); background: var(--emerald-f); }
 
 .lock-verse-area {
   flex: 1;
@@ -1484,6 +1485,7 @@ html, body {
   <div class="lock-top">
     <div class="lock-time" id="lockTime">--:--</div>
     <div class="lock-actions">
+      <button class="icon-btn" id="listenBtn" onclick="playVerseAudio()" title="Listen to Verse">&#128266;</button>
       <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">◑</button>
       <button class="icon-btn" onclick="goTo('homeScreen')" title="Dashboard">⊞</button>
     </div>
@@ -2143,6 +2145,11 @@ function renderVerse() {
   currentExtraVerse = null;
   const mb = document.getElementById('micBtn');
   if (mb) { mb.innerHTML = '&#127908;'; mb.style.borderColor = ''; mb.style.color = ''; }
+
+  // Stop any playing audio
+  if (currentAudio) { currentAudio.pause(); currentAudioQueue = []; currentAudio = null; }
+  const listenBtn = document.getElementById('listenBtn');
+  if (listenBtn) { listenBtn.classList.remove('playing'); listenBtn.innerHTML = '&#128266;'; }
 
   // Reset timer and close app button
   resetTimerState();
@@ -2919,6 +2926,89 @@ function showAnotherVerse() {
   setMicStatus('Tap 🎤 to start reading aloud', '');
 
   showToast('New verse loaded - listening active');
+}
+
+// ═══════════════════════════════════════════════════════
+//  AUDIO PLAYBACK
+// ═══════════════════════════════════════════════════════
+let currentAudioQueue = [];
+let currentAudio = null;
+
+function playVerseAudio() {
+  const listenBtn = document.getElementById('listenBtn');
+  
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudioQueue = [];
+    currentAudio = null;
+    if (listenBtn) {
+      listenBtn.classList.remove('playing');
+      listenBtn.innerHTML = '&#128266;';
+    }
+    return; // stops audio if playing
+  }
+
+  const v = currentExtraVerse || getTodayVerse();
+  let refMatches = v.surah.match(/(\d+):(\d+)(?:-(\d+))?/);
+  if (!refMatches) {
+    showToast('Could not parse verse reference');
+    return;
+  }
+  
+  let surah = parseInt(refMatches[1]);
+  let startAyah = parseInt(refMatches[2]);
+  let endAyah = refMatches[3] ? parseInt(refMatches[3]) : startAyah;
+  
+  currentAudioQueue = [];
+  for (let i = startAyah; i <= endAyah; i++) {
+    currentAudioQueue.push(`${surah}:${i}`);
+  }
+  
+  if (listenBtn) {
+    listenBtn.classList.add('playing');
+    listenBtn.innerHTML = '&#9208;'; // Pause icon
+  }
+  playNextAudioInQueue();
+}
+
+function playNextAudioInQueue() {
+  if (currentAudioQueue.length === 0) {
+    currentAudio = null;
+    const listenBtn = document.getElementById('listenBtn');
+    if (listenBtn) {
+      listenBtn.classList.remove('playing');
+      listenBtn.innerHTML = '&#128266;';
+    }
+    return;
+  }
+  let ayahRef = currentAudioQueue.shift();
+  showToast('Loading audio...');
+  fetch(`https://api.alquran.cloud/v1/ayah/${ayahRef}/ar.alafasy`)
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.data && data.data.audio) {
+        currentAudio = new Audio(data.data.audio);
+        currentAudio.onended = () => {
+          playNextAudioInQueue();
+        };
+        currentAudio.play().catch(e => {
+          console.error(e);
+          showToast('Failed to play audio');
+          currentAudioQueue = [];
+          playNextAudioInQueue();
+        });
+      } else {
+        showToast('Audio not found');
+        currentAudioQueue = [];
+        playNextAudioInQueue();
+      }
+    })
+    .catch(e => {
+      console.error(e);
+      showToast('Error loading audio');
+      currentAudioQueue = [];
+      playNextAudioInQueue();
+    });
 }
 
 // ═══════════════════════════════════════════════════════
