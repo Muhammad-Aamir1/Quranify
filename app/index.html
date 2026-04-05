@@ -2336,55 +2336,65 @@ function initMic() {
 }
 
 // Native speech recognition for Capacitor apps
+let pluginHandle = null;
+
 async function initNativeSpeechRecognition() {
   setMicStatus('Starting voice recognition...', '');
   
+  const SR = window.Capacitor && window.Capacitor.Plugins.SpeechRecognition;
+  if (!SR) {
+    showToast('Speech recognition plugin not loaded');
+    offerFallback('Voice recognition not available.');
+    return;
+  }
+  
   try {
-    const { SpeechRecognition } = window.Capacitor.Plugins;
-    
-    if (!SpeechRecognition) {
-      showToast('Speech recognition plugin not available');
+    const available = await SR.available();
+    if (!available.available) {
+      showToast('Speech recognition not available on this device');
       offerFallback('Voice recognition not available in this app.');
       return;
     }
 
-    // Check permission
-    const permissionResult = await SpeechRecognition.requestPermission();
-    if (!permissionResult.value) {
-      showToast('Microphone permission denied');
-      offerFallback('Microphone permission denied. Enable in phone Settings > NurAl > Microphone.');
-      return;
+    const permResult = await SR.checkPermissions();
+    if (permResult.speechRecognition !== 'granted') {
+      const reqResult = await SR.requestPermissions();
+      if (reqResult.speechRecognition !== 'granted') {
+        showToast('Microphone permission denied');
+        offerFallback('Microphone permission denied. Enable in phone Settings > NurAl > Microphone.');
+        return;
+      }
     }
 
-    // Start native speech recognition
-    nativeSpeechRecognition = await SpeechRecognition.start({
-      language: 'ar-SA',
-      maxResults: 1,
-      prompt: 'Read the Quran verse aloud'
-    });
+    // Remove old listeners to avoid duplicates
+    await SR.removeAllListeners();
 
-    nativeSpeechRecognition.addEventListener('result', (event) => {
-      if (event.results && event.results.length > 0) {
-        const transcript = event.results[0].item(0).transcript;
+    // Listen for results
+    await SR.addListener('partialResults', (data) => {
+      if (data.matches && data.matches.length > 0) {
+        const transcript = data.matches[0];
         const dbg = document.getElementById('debugTranscript');
         if (dbg) dbg.textContent = '🎤 ' + transcript;
         processTranscript(transcript);
       }
     });
 
-    nativeSpeechRecognition.addEventListener('error', (event) => {
+    // Listen for errors
+    await SR.addListener('error', (event) => {
       logToPage('Native speech error: ' + event.error);
-      if (event.error !== 'no-match') {
+      if (event.error !== 'no-match' && event.error !== 'no_speech') {
         recognizing = false;
         offerFallback('Voice recognition error: ' + event.error);
       }
     });
 
-    nativeSpeechRecognition.addEventListener('end', () => {
-      if (recognizing && wordsDone < wordsTotal) {
-        // Restart if still listening
-        try { nativeSpeechRecognition.start(); } catch(e) {}
-      }
+    // Start native speech recognition
+    await SR.start({
+      language: 'ar-SA',
+      maxResults: 5,
+      prompt: 'Read the Quran verse aloud',
+      partialResults: true,
+      popup: false
     });
 
     recognizing = true;
@@ -2396,18 +2406,19 @@ async function initNativeSpeechRecognition() {
 
   } catch (err) {
     console.error('Native speech init error:', err);
-    showToast('Failed to start voice recognition');
+    showToast('Failed to start voice recognition: ' + err.message);
     offerFallback('Could not start voice recognition. Try the tap mode instead.');
   }
 }
 
-function stopNativeRecognition() {
-  if (nativeSpeechRecognition) {
-    try {
-      nativeSpeechRecognition.stop();
-    } catch(e) {}
-    nativeSpeechRecognition = null;
-  }
+async function stopNativeRecognition() {
+  try {
+    const SR = window.Capacitor && window.Capacitor.Plugins.SpeechRecognition;
+    if (SR) {
+      await SR.stop();
+      await SR.removeAllListeners();
+    }
+  } catch(e) {}
   recognizing = false;
   setMicListening(false);
 }
@@ -2872,14 +2883,20 @@ function timerExpired() {
   }
 }
 
-function closeApp() {
-  // Try to close the window (works for windows opened by scripts)
-  window.close();
-  // Fallback: show a message
-  showToast('You can now close this tab');
-  // For mobile: try to go back in history
-  if (window.history.length > 1) {
-    window.history.back();
+async function closeApp() {
+  if (isNativeApp()) {
+    try {
+      const { App } = await import('@capacitor/app');
+      await App.exitApp();
+    } catch(e) {
+      console.error('Exit app error:', e);
+      navigator.app.exitApp();
+    }
+  } else {
+    window.close();
+    if (window.history.length > 1) {
+      window.history.back();
+    }
   }
 }
 

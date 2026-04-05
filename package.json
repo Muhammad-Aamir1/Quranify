@@ -9,13 +9,19 @@
     "ios": "npx cap run ios",
     "android": "npx cap run android"
   },
-  "keywords": ["quran", "islam", "daily-verse"],
+  "keywords": [
+    "quran",
+    "islam",
+    "daily-verse"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@capacitor/android": "5.7.8",
-    "@capacitor/cli": "5.7.8",
-    "@capacitor/core": "5.7.8",
-    "@capacitor/ios": "5.7.8"
+    "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor/android": "^7.6.1",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/cli": "^7.6.1",
+    "@capacitor/core": "^7.6.1",
+    "@capacitor/ios": "^7.6.1"
   }
 }
