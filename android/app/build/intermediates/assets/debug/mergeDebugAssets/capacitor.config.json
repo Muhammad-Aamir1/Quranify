@@ -1,0 +1,29 @@
+{
+	"appId": "com.nural.quran",
+	"appName": "NurAl",
+	"webDir": "app",
+	"android": {
+		"allowMixedContent": true,
+		"minSdkVersion": 24,
+		"notificationChannels": [
+			{
+				"id": "nural-reminders",
+				"name": "Daily Reminders",
+				"description": "Daily verse reading reminders",
+				"importance": "high"
+			}
+		]
+	},
+	"server": {
+		"androidScheme": "https"
+	},
+	"plugins": {
+		"LocalNotifications": {
+			"smallIcon": "ic_notification",
+			"iconColor": "#c8951a"
+		},
+		"SpeechRecognition": {
+			"enabled": true
+		}
+	}
+}
