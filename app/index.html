@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07120d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NurAl">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
 <title>NurAl — Daily Quran</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -46,15 +53,18 @@
   --emerald-f: rgba(26,122,66,0.1);
 }
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-overflow-scrolling:touch; }
 
 html, body {
-  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   font-family: 'Spectral', Georgia, serif;
   background: var(--bg);
   color: var(--text);
   transition: background 0.4s, color 0.4s;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* ── SCREENS ── */
@@ -64,15 +74,23 @@ html, body {
   display: none;
   flex-direction: column;
   overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 .screen.active { display: flex; }
 
 /* ── LOCK SCREEN ── */
 #lockScreen {
   background: var(--bg);
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
+  justify-content: flex-start;
   padding: 0;
+}
+
+#lockScreen .lock-verse-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .lock-bg {
@@ -115,6 +133,7 @@ html, body {
   flex-shrink: 0;
 }
 .icon-btn:hover { background: var(--gold-f); color: var(--gold-l); border-color: var(--gold); }
+.icon-btn.playing { color: var(--emerald); border-color: var(--emerald); background: var(--emerald-f); }
 
 .lock-verse-area {
   flex: 1;
@@ -231,13 +250,14 @@ html, body {
 /* ── MIC AREA ── */
 .lock-bottom {
   width: 100%;
-  padding: 0 28px 32px;
+  padding: 12px 28px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
 }
 
 .mic-btn {
@@ -884,9 +904,21 @@ html, body {
 }
 
 /* scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* PC always show scrollbar */
+@media (pointer: fine) {
+  ::-webkit-scrollbar { width: 8px; }
+}
+
+/* Mouse wheel scrolling for PC */
+#lockScreen .lock-verse-area {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
 
 /* ── ONBOARDING SCREEN ── */
 #onboardingScreen {
@@ -1256,7 +1288,6 @@ html, body {
   html, body { font-size: 15px; }
   body { padding: 0; margin: 0; }
 
-  .lock-top, .lock-verse-area, .onboard-wrap, .completion-inner, .modal-sheet { padding: 16px !important; width: 100%; max-width: 100%; }
   .lock-top { padding: 14px 12px 0; }
   .lock-verse-area { padding: 14px 12px 20px; }
 
@@ -1269,10 +1300,15 @@ html, body {
   .onboard-body, .consent-desc, .consent-banner-body { font-size: 0.85rem; }
   .onboard-checkbox-row { padding: 12px 10px; }
 
-  .scrolling-area, .verse-list, #feed, .heatmap-grid { max-width: 100%; }
+  .heatmap { max-width: 100%; }
 
   .modal-sheet { border-radius: 16px; padding: 20px; }
   .toast { bottom: 20px; left: 50%; transform: translateX(-50%) translateY(0); font-size: 0.65rem; }
+  
+  .lock-bottom { padding: 16px 12px 28px; gap: 10px; flex-shrink: 0; }
+  .stat-row { gap: 8px; }
+  .stat-card { padding: 12px 10px; }
+  .stat-val { font-size: 1.5rem; }
 }
 
 @media screen and (max-width: 600px) {
@@ -1281,6 +1317,9 @@ html, body {
   .arabic-verse { font-size: clamp(1rem, 5vw, 1.6rem); line-height: 1.7; }
   .onboard-title { font-size: 1.25rem; }
   .onboard-body { font-size: 0.8rem; }
+  .home-header { padding: 16px 14px 0; }
+  .home-content { padding: 16px 14px 80px; }
+  .bottom-nav { height: 56px; }
 }
 
 @media screen and (max-width: 480px) {
@@ -1293,6 +1332,13 @@ html, body {
   .surah-badge { font-size: 0.50rem; padding: 2px 8px; }
   .toast { bottom: 12px; left: 50%; transform: translateX(-50%) translateY(0); font-size: 0.58rem; padding: 6px 12px; }
   .modal-sheet { border-radius: 12px; padding: 12px; }
+  
+  .home-content { padding: 12px 10px 70px; gap: 12px; }
+  .stat-row { grid-template-columns: 1fr 1fr !important; gap: 6px; }
+  .stat-card { padding: 10px 8px; }
+  .stat-val { font-size: 1.3rem; }
+  .today-verse-card { padding: 14px; }
+  .today-verse-arabic { font-size: 1.1rem; }
 }
 
 @media screen and (max-width: 320px) {
@@ -1300,18 +1346,33 @@ html, body {
   .arabic-verse { font-size: clamp(0.85rem, 5vw, 1.2rem); }
   .onboard-title { font-size: 1rem; }
   .onboard-btn, .modal-btn { padding: 10px; font-size: 0.6rem; }
+  .logo-arabic { font-size: 1.1rem; }
+}
+
+@supports (padding: max(0px)) {
+  .lock-top { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  .lock-bottom { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: max(28px, env(safe-area-inset-bottom)); flex-shrink: 0; }
+  .bottom-nav { padding-bottom: max(0px, env(safe-area-inset-bottom)); }
+  .home-header { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  .home-content { padding-left: max(14px, env(safe-area-inset-left)); padding-right: max(14px, env(safe-area-inset-right)); }
+  .settings-header { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  .settings-content { padding-left: max(14px, env(safe-area-inset-left)); padding-right: max(14px, env(safe-area-inset-right)); }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .onboard-btn:hover, .modal-btn:hover, .read-btn:hover, .skip-badge:hover { opacity: 1; transform: none; }
+  .icon-btn:hover, .mic-btn:hover, .nav-item:hover { color: inherit; }
 }
 
 </style>
 </head>
-
 <body>
 
-  <!-- ══════════════════════════════════
+<!-- ══════════════════════════════════
      SCREEN 0: ONBOARDING (first launch)
 ══════════════════════════════════ -->
 
-  <!-- ══════════════════════════════════
+<!-- ══════════════════════════════════
      SCREEN 1: LOCK SCREEN
 ══════════════════════════════════ -->
 <div id="onboardingScreen" class="screen active">
@@ -1329,104 +1390,89 @@ html, body {
         Your daily Quran companion.<br>One verse. Every morning. Read aloud.<br>
         <br>Build the habit of daily Quran reading — one verse at a time, every single day.
       </div>
-
-      <!-- Step 2: Screen Lock Consent -->
-      <div class="onboard-step" id="ob-step-2">
-        <div class="onboard-dots">
-          <div class="onboard-dot"></div>
-          <div class="onboard-dot active"></div>
-          <div class="onboard-dot"></div>
-        </div>
-        <div class="onboard-icon">&#x1F512;</div>
-        <div class="onboard-title">Daily <span>Screen Lock</span></div>
-        <div class="onboard-body">
-          NurAl can show a verse on your screen each morning and keep it active until you&apos;ve read it aloud. This is
-          <strong>completely optional</strong> and you can turn it off anytime.
-        </div>
-        <div class="onboard-consent-box">
-          <div class="onboard-consent-row">
-            <div class="consent-icon">&#x1F50F;</div>
-            <div class="consent-text-wrap">
-              <div class="consent-label">What this does</div>
-              <div class="consent-desc">Shows a verse overlay on your first phone use each day. The overlay closes once
-                you finish reading aloud.</div>
-            </div>
-          </div>
-          <div class="onboard-consent-row">
-            <div class="consent-icon">&#x1F6AB;</div>
-            <div class="consent-text-wrap">
-              <div class="consent-label">What it does NOT do</div>
-              <div class="consent-desc">Does not access messages, contacts, camera, or any personal data. Cannot prevent
-                emergency calls.</div>
-            </div>
-          </div>
-          <div class="onboard-consent-row">
-            <div class="consent-icon">&#x2699;&#xFE0F;</div>
-            <div class="consent-text-wrap">
-              <div class="consent-label">You stay in control</div>
-              <div class="consent-desc">Disable this anytime in Settings &rarr; Screen Lock. One weekly skip is always
-              available.</div>
-            </div>
-          </div>
-        </div>
-        <div class="onboard-checkbox-row" id="consentCheckRow" onclick="toggleConsentCheck()">
-      <div class="onboard-checkbox" id="consentCheckbox"></div>
-          <div class="onboard-checkbox-label">I understand and consent to the daily screen lock feature</div>
-        </div>
-        <button class="onboard-btn primary" id="obConsentBtn" onclick="obAcceptConsent()" disabled>Enable Screen Lock
-          &#8594;</button>
-        <button class="onboard-btn secondary" onclick="obDeclineConsent()">No thanks, skip this</button>
-      </div>
-
-      <!-- Step 3: Weekly Skip -->
-      <div class="onboard-step" id="ob-step-3">
-        <div class="onboard-dots">
-          <div class="onboard-dot"></div>
-          <div class="onboard-dot"></div>
-          <div class="onboard-dot active"></div>
-        </div>
-        <div class="onboard-icon">&#x1F4C5;</div>
-        <div class="onboard-title">Your <span>Weekly Skip</span></div>
-        <div class="onboard-body">
-          Life happens. Once per week, you can skip the daily reading without breaking your streak or triggering the
-          lock.
-        </div>
-        <div class="onboard-consent-box">
-          <div class="onboard-consent-row">
-            <div class="consent-icon">&#x2705;</div>
-            <div class="consent-text-wrap">
-              <div class="consent-label">1 skip per rolling 7 days</div>
-              <div class="consent-desc">Your skip resets exactly 7 days after you last used it &mdash; not on a fixed
-                Sunday/Monday boundary.</div>
-            </div>
-          </div>
-          <div class="onboard-consent-row">
-            <div class="consent-icon">&#x1F525;</div>
-            <div class="consent-text-wrap">
-              <div class="consent-label">Streak is protected</div>
-              <div class="consent-desc">Using a skip marks the day as &ldquo;excused&rdquo; &mdash; your streak does not
-                reset. Skipped days show in amber on your heatmap.</div>
-            </div>
-          </div>
-          <div class="onboard-consent-row">
-            <div class="consent-icon">&#x26A0;&#xFE0F;</div>
-            <div class="consent-text-wrap">
-              <div class="consent-label">Missing days without a skip</div>
-              <div class="consent-desc">If you miss a day without using your skip, your streak resets to zero. The
-                screen lock will still activate the next morning.</div>
-            </div>
-          </div>
-        </div>
-        <button class="onboard-btn primary" onclick="obFinish()">Start Reading &#8594;</button>
-      </div>
-
+      <button class="onboard-btn primary" onclick="obNext(2)">Get Started &#8594;</button>
+      <button class="onboard-btn secondary" onclick="obSkipOnboarding()">Skip setup</button>
     </div>
-  </div>
 
-  <!-- Network Banner -->
-  <div id="networkBanner" class="network-banner hidden">
-    <span id="networkBannerText"></span>
+    <!-- Step 2: Screen Lock Consent -->
+    <div class="onboard-step" id="ob-step-2">
+      <div class="onboard-dots">
+        <div class="onboard-dot"></div><div class="onboard-dot active"></div><div class="onboard-dot"></div>
+      </div>
+      <div class="onboard-icon">&#x1F512;</div>
+      <div class="onboard-title">Daily <span>Screen Lock</span></div>
+      <div class="onboard-body">
+        NurAl can show a verse on your screen each morning and keep it active until you&apos;ve read it aloud. This is <strong>completely optional</strong> and you can turn it off anytime.
+      </div>
+      <div class="onboard-consent-box">
+        <div class="onboard-consent-row">
+          <div class="consent-icon">&#x1F50F;</div>
+          <div class="consent-text-wrap">
+            <div class="consent-label">What this does</div>
+            <div class="consent-desc">Shows a verse overlay on your first phone use each day. The overlay closes once you finish reading aloud.</div>
+          </div>
+        </div>
+        <div class="onboard-consent-row">
+          <div class="consent-icon">&#x1F6AB;</div>
+          <div class="consent-text-wrap">
+            <div class="consent-label">What it does NOT do</div>
+            <div class="consent-desc">Does not access messages, contacts, camera, or any personal data. Cannot prevent emergency calls.</div>
+          </div>
+        </div>
+        <div class="onboard-consent-row">
+          <div class="consent-icon">&#x2699;&#xFE0F;</div>
+          <div class="consent-text-wrap">
+            <div class="consent-label">You stay in control</div>
+            <div class="consent-desc">Disable this anytime in Settings &rarr; Screen Lock. One weekly skip is always available.</div>
+          </div>
+        </div>
+      </div>
+      <div class="onboard-checkbox-row" id="consentCheckRow" onclick="toggleConsentCheck()">
+        <div class="onboard-checkbox" id="consentCheckbox"></div>
+        <div class="onboard-checkbox-label">I understand and consent to the daily screen lock feature</div>
+      </div>
+      <button class="onboard-btn primary" id="obConsentBtn" onclick="obAcceptConsent()" disabled>Enable Screen Lock &#8594;</button>
+      <button class="onboard-btn secondary" onclick="obDeclineConsent()">No thanks, skip this</button>
+    </div>
+
+    <!-- Step 3: Weekly Skip -->
+    <div class="onboard-step" id="ob-step-3">
+      <div class="onboard-dots">
+        <div class="onboard-dot"></div><div class="onboard-dot"></div><div class="onboard-dot active"></div>
+      </div>
+      <div class="onboard-icon">&#x1F4C5;</div>
+      <div class="onboard-title">Your <span>Weekly Skip</span></div>
+      <div class="onboard-body">
+        Life happens. Once per week, you can skip the daily reading without breaking your streak or triggering the lock.
+      </div>
+      <div class="onboard-consent-box">
+        <div class="onboard-consent-row">
+          <div class="consent-icon">&#x2705;</div>
+          <div class="consent-text-wrap">
+            <div class="consent-label">1 skip per rolling 7 days</div>
+            <div class="consent-desc">Your skip resets exactly 7 days after you last used it &mdash; not on a fixed Sunday/Monday boundary.</div>
+          </div>
+        </div>
+        <div class="onboard-consent-row">
+          <div class="consent-icon">&#x1F525;</div>
+          <div class="consent-text-wrap">
+            <div class="consent-label">Streak is protected</div>
+            <div class="consent-desc">Using a skip marks the day as &ldquo;excused&rdquo; &mdash; your streak does not reset. Skipped days show in amber on your heatmap.</div>
+          </div>
+        </div>
+        <div class="onboard-consent-row">
+          <div class="consent-icon">&#x26A0;&#xFE0F;</div>
+          <div class="consent-text-wrap">
+            <div class="consent-label">Missing days without a skip</div>
+            <div class="consent-desc">If you miss a day without using your skip, your streak resets to zero. The screen lock will still activate the next morning.</div>
+          </div>
+        </div>
+      </div>
+      <button class="onboard-btn primary" onclick="obFinish()">Start Reading &#8594;</button>
+    </div>
+
   </div>
+</div>
 
 <!-- Network Banner -->
 <div id="networkBanner" class="network-banner hidden">
@@ -1436,14 +1482,14 @@ html, body {
 <div id="lockScreen" class="screen">
   <div class="lock-bg"></div>
 
-    <div class="lock-top">
-      <div class="lock-time" id="lockTime">--:--</div>
-      <div class="lock-actions">
-        <button class="icon-btn" id="listenBtn" onclick="playVerseAudio()" title="Listen to Verse">&#128266;</button>
-        <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">◑</button>
-        <button class="icon-btn" onclick="goTo('homeScreen')" title="Dashboard">⊞</button>
-      </div>
+  <div class="lock-top">
+    <div class="lock-time" id="lockTime">--:--</div>
+    <div class="lock-actions">
+      <button class="icon-btn" id="listenBtn" onclick="playVerseAudio()" title="Listen to Verse">&#128266;</button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">◑</button>
+      <button class="icon-btn" onclick="goTo('homeScreen')" title="Dashboard">⊞</button>
     </div>
+  </div>
 
   <div class="lock-verse-area">
     <!-- Quran Progress -->
@@ -1454,40 +1500,37 @@ html, body {
 
     <div class="surah-badge" id="surahBadge">Al-Baqarah · 2:286</div>
 
-      <div class="surah-badge" id="surahBadge">Al-Baqarah · 2:286</div>
-
-      <div class="arabic-verse" id="arabicVerse">
-        <!-- words injected by JS -->
-      </div>
-
-      <div class="transliteration" id="translit"></div>
-      <div class="translation" id="translation"></div>
-
-      <div style="width:100%">
-        <div class="verse-progress">
-          <div class="verse-progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-label" id="progressLabel">0 / 0 words</div>
-      </div>
+    <div class="arabic-verse" id="arabicVerse">
+      <!-- words injected by JS -->
     </div>
 
-    <div class="lock-bottom">
-      <div class="waveform" id="waveform">
-        <div class="wave-bar" style="height:4px"></div>
-        <div class="wave-bar" style="height:4px"></div>
-        <div class="wave-bar" style="height:4px"></div>
-        <div class="wave-bar" style="height:4px"></div>
-        <div class="wave-bar" style="height:4px"></div>
-        <div class="wave-bar" style="height:4px"></div>
-        <div class="wave-bar" style="height:4px"></div>
+    <div class="transliteration" id="translit"></div>
+    <div class="translation" id="translation"></div>
+
+    <div style="width:100%">
+      <div class="verse-progress">
+        <div class="verse-progress-fill" id="progressFill"></div>
       </div>
+      <div class="progress-label" id="progressLabel">0 / 0 words</div>
+    </div>
+  </div>
+
+  <div class="lock-bottom">
+    <div class="waveform" id="waveform">
+      <div class="wave-bar" style="height:4px"></div>
+      <div class="wave-bar" style="height:4px"></div>
+      <div class="wave-bar" style="height:4px"></div>
+      <div class="wave-bar" style="height:4px"></div>
+      <div class="wave-bar" style="height:4px"></div>
+      <div class="wave-bar" style="height:4px"></div>
+      <div class="wave-bar" style="height:4px"></div>
+    </div>
 
     <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
     <div id="debugTranscript" style="font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--emerald);opacity:0.7;text-align:center;min-height:18px;padding:0 8px;word-break:break-all;max-width:100%;overflow:hidden;direction:rtl;"></div>
     <div id="debugLog" style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--gray);opacity:0.5;text-align:left;min-height:18px;padding:0 8px;max-width:100%;overflow:hidden;"></div>
     <div class="mic-status" id="micStatus">Tap 🎤 to start reading aloud</div>
 
-    <!-- 60 Second Timer Button -->
     <button class="timer-btn" id="timerBtn" onclick="resetTimer()">
       <span id="timerDisplay">60</span>
       <span class="timer-label">SEC</span>
@@ -1512,302 +1555,291 @@ html, body {
         <button onclick="startTapMode()" style="flex:1;padding:10px 4px;background:rgba(224,168,48,0.1);border:1px solid var(--amber);border-radius:8px;color:var(--amber);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;cursor:pointer;">👆 Tap Words</button>
         <button onclick="initMic()" style="flex:1;padding:10px 4px;background:var(--gold-f);border:1px solid var(--gold);border-radius:8px;color:var(--gold-l);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;cursor:pointer;">🎤 Retry Mic</button>
       </div>
-
-      <!-- <button class="bypass-btn" id="bypassBtn" onclick="showBypassModal()">
-      Skip for now (emergency only)
-    </button> -->
+      <button onclick="openModal('micHelpModal')" style="width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text3);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;cursor:pointer;">❓ How to Enable Microphone</button>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════════
+    <button class="bypass-btn" id="bypassBtn" onclick="showBypassModal()">
+      Skip for now (emergency only)
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
      SCREEN 2: COMPLETION
 ══════════════════════════════════ -->
-  <div id="completionScreen" class="screen">
-    <div class="completion-inner">
-      <div class="completion-icon">✨</div>
-      <div class="arabic-complete">جَزَاكَ اللّهُ خَيرًاً</div>
-      <div class="complete-sub">Verse Complete · JazakAllahu Khairan</div>
+<div id="completionScreen" class="screen">
+  <div class="completion-inner">
+    <div class="completion-icon">✨</div>
+    <div class="arabic-complete">جَزَاكَ اللّهُ خَيرًاً</div>
+    <div class="complete-sub">Verse Complete · JazakAllahu Khairan</div>
 
-      <div class="streak-display">
-        <div class="streak-num" id="completionStreak">1</div>
-        <div class="streak-info">
-          <div class="streak-label">Day Streak 🔥</div>
-          <div
-            style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text3);letter-spacing:0.1em;margin-top:4px;">
-            Total read: <span id="completionTotalRead" style="color:var(--emerald)">0</span></div>
-        </div>
+    <div class="streak-display">
+      <div class="streak-num" id="completionStreak">1</div>
+      <div class="streak-info">
+        <div class="streak-label">Day Streak 🔥</div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text3);letter-spacing:0.1em;margin-top:4px;">Total read: <span id="completionTotalRead" style="color:var(--emerald)">0</span></div>
       </div>
-
-      <div class="verse-summary">
-        <div
-          style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;"
-          id="completionVerseName"></div>
-        <div class="verse-summary-arabic" id="summaryArabic"></div>
-        <div class="verse-summary-translation" id="summaryTranslation"></div>
-      </div>
-
-      <button class="unlock-btn" onclick="goTo('homeScreen')">
-        ↳ &nbsp; Open Phone / Dashboard
-      </button>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════════
+    <div class="verse-summary">
+      <div style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;" id="completionVerseName"></div>
+      <div class="verse-summary-arabic" id="summaryArabic"></div>
+      <div class="verse-summary-translation" id="summaryTranslation"></div>
+    </div>
+
+    <button class="unlock-btn" onclick="goTo('homeScreen')">
+      ↳ &nbsp; Open Phone / Dashboard
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
      SCREEN 3: HOME DASHBOARD
 ══════════════════════════════════ -->
-  <div id="homeScreen" class="screen">
-    <div class="home-header">
-      <div class="app-logo">
-        <div class="logo-arabic">نُورَل</div>
-        <div class="logo-en">NurAl</div>
-      </div>
-      <div class="home-nav">
-        <button class="icon-btn" onclick="toggleTheme()">◑</button>
-        <button class="icon-btn" onclick="goTo('settingsScreen')">⚙</button>
-      </div>
+<div id="homeScreen" class="screen">
+  <div class="home-header">
+    <div class="app-logo">
+      <div class="logo-arabic">نُورَل</div>
+      <div class="logo-en">NurAl</div>
     </div>
-
-    <div class="home-content">
-
-      <!-- Stats row -->
-      <div class="stat-row" style="grid-template-columns:1fr 1fr;">
-        <div class="stat-card">
-          <div class="stat-val" id="statStreak">0</div>
-          <div class="stat-key">Streak 🔥</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val" id="statBest">0</div>
-          <div class="stat-key">Best Streak</div>
-        </div>
-      </div>
-      <div class="stat-row" style="grid-template-columns:1fr 1fr;">
-        <div class="stat-card" style="border-top:3px solid var(--emerald);">
-          <div class="stat-val" id="statTotalRead" style="color:var(--emerald)">0</div>
-          <div class="stat-key">Verses Read ✓</div>
-        </div>
-        <div class="stat-card" style="border-top:3px solid var(--red);">
-          <div class="stat-val" id="statUnread" style="color:var(--red)">0</div>
-          <div class="stat-key">Not Read ×</div>
-        </div>
-      </div>
-
-      <!-- Today's verse -->
-      <div>
-        <div class="section-title">Today's Verse</div>
-        <div class="today-verse-card" id="todayCard">
-          <div class="today-verse-arabic" id="todayArabic"></div>
-          <div class="today-verse-translation" id="todayTranslation"></div>
-          <div class="today-verse-meta">
-            <div>
-              <div
-                style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:4px;"
-                id="todaySurah"></div>
-              <div class="today-status" id="todayStatus">Pending</div>
-            </div>
-            <button class="read-btn" onclick="goTo('lockScreen')" id="readNowBtn">Read Now →</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Streak heatmap -->
-      <div>
-        <div class="section-title">Last 28 Days</div>
-        <div class="heatmap" id="heatmap"></div>
-      </div>
-
-      <!-- History -->
-      <div>
-        <div class="section-title">Recent Readings</div>
-        <div id="verseHistory"></div>
-      </div>
-
-    </div>
-
-    <div class="bottom-nav">
-      <button class="nav-item active" onclick="goTo('homeScreen')">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Home</span>
-      </button>
-      <button class="nav-item" onclick="goTo('lockScreen')">
-        <span class="nav-icon">📖</span>
-        <span class="nav-label">Read</span>
-      </button>
-      <button class="nav-item" onclick="goTo('settingsScreen')">
-        <span class="nav-icon">⚙️</span>
-        <span class="nav-label">Settings</span>
-      </button>
+    <div class="home-nav">
+      <button class="icon-btn" onclick="toggleTheme()">◑</button>
+      <button class="icon-btn" onclick="goTo('settingsScreen')">⚙</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
+  <div class="home-content">
+
+    <!-- Stats row -->
+    <div class="stat-row" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-card">
+        <div class="stat-val" id="statStreak">0</div>
+        <div class="stat-key">Streak 🔥</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statBest">0</div>
+        <div class="stat-key">Best Streak</div>
+      </div>
+    </div>
+    <div class="stat-row" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-card" style="border-top:3px solid var(--emerald);">
+        <div class="stat-val" id="statTotalRead" style="color:var(--emerald)">0</div>
+        <div class="stat-key">Verses Read ✓</div>
+      </div>
+      <div class="stat-card" style="border-top:3px solid var(--red);">
+        <div class="stat-val" id="statUnread" style="color:var(--red)">0</div>
+        <div class="stat-key">Not Read ×</div>
+      </div>
+    </div>
+
+    <!-- Today's verse -->
+    <div>
+      <div class="section-title">Today's Verse</div>
+      <div class="today-verse-card" id="todayCard">
+        <div class="today-verse-arabic" id="todayArabic"></div>
+        <div class="today-verse-translation" id="todayTranslation"></div>
+        <div class="today-verse-meta">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:4px;" id="todaySurah"></div>
+            <div class="today-status" id="todayStatus">Pending</div>
+          </div>
+          <button class="read-btn" onclick="goTo('lockScreen')" id="readNowBtn">Read Now →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streak heatmap -->
+    <div>
+      <div class="section-title">Last 28 Days</div>
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+
+    <!-- History -->
+    <div>
+      <div class="section-title">Recent Readings</div>
+      <div id="verseHistory"></div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="goTo('homeScreen')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="goTo('lockScreen')">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Read</span>
+    </button>
+    <button class="nav-item" onclick="goTo('settingsScreen')">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Settings</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
      SCREEN 4: SETTINGS
 ══════════════════════════════════ -->
-  <div id="settingsScreen" class="screen">
-    <div class="settings-header">
-      <button class="back-btn" onclick="goTo('homeScreen')">←</button>
-      <div class="settings-title">Settings</div>
-    </div>
-
-    <div class="settings-content">
-      <div class="settings-group-label">Appearance</div>
-
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="setting-label">Dark Mode</div>
-          <div class="setting-desc">Switch between dark and light theme</div>
-        </div>
-        <div class="toggle" id="themeToggle" onclick="toggleTheme()"></div>
-      </div>
-
-      <div class="settings-group-label">Daily Goal</div>
-
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="setting-label">Verses per Day</div>
-          <div class="setting-desc">How many verses to read each day</div>
-        </div>
-        <div class="segmented" id="versesSegmented">
-          <button class="seg-opt active" onclick="setDailyVerses(1, this)">1</button>
-          <button class="seg-opt" onclick="setDailyVerses(2, this)">2</button>
-          <button class="seg-opt" onclick="setDailyVerses(3, this)">3</button>
-        </div>
-      </div>
-
-      <div class="settings-group-label">Reading</div>
-
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="setting-label">Show Transliteration</div>
-          <div class="setting-desc">Phonetic pronunciation guide</div>
-        </div>
-        <div class="toggle on" id="translitToggle" onclick="toggleSetting('showTranslit', 'translitToggle')"></div>
-      </div>
-
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="setting-label">Show Translation</div>
-          <div class="setting-desc">English meaning below Arabic</div>
-        </div>
-        <div class="toggle on" id="translationToggle" onclick="toggleSetting('showTranslation', 'translationToggle')">
-        </div>
-      </div>
-
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="setting-label">Strict Pronunciation</div>
-          <div class="setting-desc">Higher accuracy threshold required</div>
-        </div>
-        <div class="toggle" id="strictToggle" onclick="toggleSetting('strictMode', 'strictToggle')"></div>
-      </div>
-
-      <div class="settings-group-label">Screen Lock Consent</div>
-
-      <div class="consent-banner" id="consentBanner" style="display:none;">
-        <div class="consent-banner-top">
-          <div class="consent-banner-title">✅ Consent Active</div>
-          <div class="consent-banner-date" id="consentDateLabel"></div>
-        </div>
-        <div class="consent-banner-body">
-          You consented to the daily screen lock. It activates on your first use each day until you complete your verse.
-        </div>
-        <button class="consent-revoke-btn" onclick="openModal('revokeModal')">Revoke Consent &amp; Disable Lock</button>
-      </div>
-
-      <div id="consentEnableRow" style="display:none;">
-        <div class="setting-row" style="cursor:pointer;" onclick="reEnableConsent()">
-          <div class="setting-info">
-            <div class="setting-label">⚠️ Screen Lock Disabled</div>
-            <div class="setting-desc">Tap to re-enable via consent flow</div>
-          </div>
-          <span style="color:var(--gold-l);font-size:0.9rem;">→</span>
-        </div>
-      </div>
-
-      <div class="settings-group-label">Weekly Skip</div>
-
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="setting-label">Skip Status</div>
-          <div class="setting-desc" id="settingsSkipDesc">Loading…</div>
-        </div>
-        <div id="settingsSkipStatus" class="skip-badge-status available"
-          style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:20px;">
-          …</div>
-      </div>
-
-      <div class="settings-group-label">About</div>
-
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="setting-label">NurAl</div>
-          <div class="setting-desc">Version 1.0 · نُورُ الْقُرْآن</div>
-        </div>
-        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text3)">v1.0</div>
-      </div>
-
-      <div class="settings-group-label">Data</div>
-
-      <div class="setting-row" style="cursor:pointer" onclick="resetProgress()">
-        <div class="setting-info">
-          <div class="setting-label" style="color:var(--red)">Reset Progress</div>
-          <div class="setting-desc">Clear all streaks and history</div>
-        </div>
-        <span style="color:var(--red);font-size:0.9rem">→</span>
-      </div>
-    </div>
+<div id="settingsScreen" class="screen">
+  <div class="settings-header">
+    <button class="back-btn" onclick="goTo('homeScreen')">←</button>
+    <div class="settings-title">Settings</div>
   </div>
 
-  <!-- ══════════════════════════════════
+  <div class="settings-content">
+    <div class="settings-group-label">Appearance</div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-label">Dark Mode</div>
+        <div class="setting-desc">Switch between dark and light theme</div>
+      </div>
+      <div class="toggle" id="themeToggle" onclick="toggleTheme()"></div>
+    </div>
+
+    <div class="settings-group-label">Daily Goal</div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-label">Verses per Day</div>
+        <div class="setting-desc">How many verses to read each day</div>
+      </div>
+      <div class="segmented" id="versesSegmented">
+        <button class="seg-opt active" onclick="setDailyVerses(1, this)">1</button>
+        <button class="seg-opt" onclick="setDailyVerses(2, this)">2</button>
+        <button class="seg-opt" onclick="setDailyVerses(3, this)">3</button>
+      </div>
+    </div>
+
+    <div class="settings-group-label">Reading</div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-label">Show Transliteration</div>
+        <div class="setting-desc">Phonetic pronunciation guide</div>
+      </div>
+      <div class="toggle on" id="translitToggle" onclick="toggleSetting('showTranslit', 'translitToggle')"></div>
+    </div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-label">Show Translation</div>
+        <div class="setting-desc">English meaning below Arabic</div>
+      </div>
+      <div class="toggle on" id="translationToggle" onclick="toggleSetting('showTranslation', 'translationToggle')"></div>
+    </div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-label">Strict Pronunciation</div>
+        <div class="setting-desc">Higher accuracy threshold required</div>
+      </div>
+      <div class="toggle" id="strictToggle" onclick="toggleSetting('strictMode', 'strictToggle')"></div>
+    </div>
+
+    <div class="settings-group-label">Screen Lock Consent</div>
+
+    <div class="consent-banner" id="consentBanner" style="display:none;">
+      <div class="consent-banner-top">
+        <div class="consent-banner-title">✅ Consent Active</div>
+        <div class="consent-banner-date" id="consentDateLabel"></div>
+      </div>
+      <div class="consent-banner-body">
+        You consented to the daily screen lock. It activates on your first use each day until you complete your verse.
+      </div>
+      <button class="consent-revoke-btn" onclick="openModal('revokeModal')">Revoke Consent &amp; Disable Lock</button>
+    </div>
+
+    <div id="consentEnableRow" style="display:none;">
+      <div class="setting-row" style="cursor:pointer;" onclick="reEnableConsent()">
+        <div class="setting-info">
+          <div class="setting-label">⚠️ Screen Lock Disabled</div>
+          <div class="setting-desc">Tap to re-enable via consent flow</div>
+        </div>
+        <span style="color:var(--gold-l);font-size:0.9rem;">→</span>
+      </div>
+    </div>
+
+    <div class="settings-group-label">Weekly Skip</div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-label">Skip Status</div>
+        <div class="setting-desc" id="settingsSkipDesc">Loading…</div>
+      </div>
+      <div id="settingsSkipStatus" class="skip-badge-status available" style="font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:20px;">…</div>
+    </div>
+
+    <div class="settings-group-label">About</div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-label">NurAl</div>
+        <div class="setting-desc">Version 1.0 · نُورُ الْقُرْآن</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text3)">v1.0</div>
+    </div>
+
+    <div class="settings-group-label">Data</div>
+
+    <div class="setting-row" style="cursor:pointer" onclick="resetProgress()">
+      <div class="setting-info">
+        <div class="setting-label" style="color:var(--red)">Reset Progress</div>
+        <div class="setting-desc">Clear all streaks and history</div>
+      </div>
+      <span style="color:var(--red);font-size:0.9rem">→</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
      BYPASS MODAL
 ══════════════════════════════════ -->
-  <div class="modal-overlay" id="bypassModal">
-    <div class="modal-sheet">
-      <button class="modal-close" onclick="closeModal('bypassModal')">✕</button>
-      <div class="modal-title" id="skipModalTitle">Use Weekly Skip</div>
-      <div class="modal-body" id="skipModalBody">
-        You have 1 weekly skip available. Using it will mark today as <strong>excused</strong> — your streak is
-        protected. Your skip resets 7 days after last use.
-      </div>
-      <button class="modal-btn" id="skipModalPrimaryBtn" onclick="doSkip()">Use Weekly Skip ✓</button>
-      <button class="modal-btn secondary" onclick="closeModal('bypassModal')">Go Back &amp; Read</button>
+<div class="modal-overlay" id="bypassModal">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('bypassModal')">✕</button>
+    <div class="modal-title" id="skipModalTitle">Use Weekly Skip</div>
+    <div class="modal-body" id="skipModalBody">
+      You have 1 weekly skip available. Using it will mark today as <strong>excused</strong> — your streak is protected. Your skip resets 7 days after last use.
     </div>
+    <button class="modal-btn" id="skipModalPrimaryBtn" onclick="doSkip()">Use Weekly Skip ✓</button>
+    <button class="modal-btn secondary" onclick="closeModal('bypassModal')">Go Back &amp; Read</button>
   </div>
+</div>
 
-  <!-- Revoke Consent Modal -->
-  <div class="modal-overlay" id="revokeModal">
-    <div class="modal-sheet">
-      <button class="modal-close" onclick="closeModal('revokeModal')">✕</button>
-      <div class="modal-title">Revoke Screen Lock Consent</div>
-      <div class="modal-body">
-        This will disable the daily screen lock and remove your recorded consent. You can re-enable it at any time from
-        Settings.
-      </div>
-      <button class="modal-btn" style="background:var(--red);" onclick="doRevokeConsent()">Yes, Revoke &amp;
-        Disable</button>
-      <button class="modal-btn secondary" onclick="closeModal('revokeModal')">Cancel</button>
+<!-- Revoke Consent Modal -->
+<div class="modal-overlay" id="revokeModal">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('revokeModal')">✕</button>
+    <div class="modal-title">Revoke Screen Lock Consent</div>
+    <div class="modal-body">
+      This will disable the daily screen lock and remove your recorded consent. You can re-enable it at any time from Settings.
     </div>
+    <button class="modal-btn" style="background:var(--red);" onclick="doRevokeConsent()">Yes, Revoke &amp; Disable</button>
+    <button class="modal-btn secondary" onclick="closeModal('revokeModal')">Cancel</button>
   </div>
+</div>
 
-  <!-- Mic Permission Help Modal -->
-  <div class="modal-overlay" id="micHelpModal">
-    <div class="modal-sheet">
-      <button class="modal-close" onclick="closeModal('micHelpModal')">✕</button>
-      <div class="modal-title">Enable Microphone</div>
-      <div class="modal-body">
-        <strong>iOS (Safari):</strong><br>
-        1. Tap the "aA" button in address bar<br>
-        2. Tap "Website Settings"<br>
-        3. Enable "Microphone"<br>
-        4. Reload the page<br><br>
-        <strong>Android (Chrome):</strong><br>
-        1. Tap lock icon 🔒 in address bar<br>
-        2. Select "Site settings" > "Permissions"<br>
-        3. Set Microphone to "Allow"<br>
-        4. Reload the page<br><br>
-        <strong>Important:</strong> Must use HTTPS (secure connection).
-      </div>
-      <button class="modal-btn" onclick="closeModal('micHelpModal')">Got it</button>
+<!-- Mic Permission Help Modal -->
+<div class="modal-overlay" id="micHelpModal">
+  <div class="modal-sheet">
+    <button class="modal-close" onclick="closeModal('micHelpModal')">✕</button>
+    <div class="modal-title">Enable Microphone</div>
+    <div class="modal-body">
+      <strong>iOS (Safari):</strong><br>
+      1. Tap the "aA" button in address bar<br>
+      2. Tap "Website Settings"<br>
+      3. Enable "Microphone"<br>
+      4. Reload the page<br><br>
+      <strong>Android (Chrome):</strong><br>
+      1. Tap lock icon 🔒 in address bar<br>
+      2. Select "Site settings" > "Permissions"<br>
+      3. Set Microphone to "Allow"<br>
+      4. Reload the page<br><br>
+      <strong>Important:</strong> Must use HTTPS (secure connection).
     </div>
+    <button class="modal-btn" onclick="closeModal('micHelpModal')">Got it</button>
   </div>
 </div>
 
@@ -1984,11 +2016,13 @@ function doRevokeConsent() {
 // ═══════════════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════════════
-function goTo(screenId) {
+function goTo(screenId, skipTimer = false) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
   if (screenId === 'homeScreen')     { updateHomeScreen(); }
-  if (screenId === 'lockScreen')     { renderVerse(); updateSkipBadge(); startTimer(); updateQuranProgress(); }
+  if (screenId === 'lockScreen')     { 
+    if (!skipTimer) { renderVerse(); updateSkipBadge(); startTimer(); updateQuranProgress(); }
+  }
   if (screenId === 'settingsScreen') { updateSettingsConsent(); updateSettingsSkip(); }
 }
 
@@ -2107,8 +2141,15 @@ function renderVerse() {
   const v = getTodayVerse();
   wordsTotal = v.words.length;
   wordsDone = 0;
+  verseCompletedWaitingForTimer = false;
+  currentExtraVerse = null;
   const mb = document.getElementById('micBtn');
   if (mb) { mb.innerHTML = '&#127908;'; mb.style.borderColor = ''; mb.style.color = ''; }
+
+  // Stop any playing audio
+  if (currentAudio) { currentAudio.pause(); currentAudioQueue = []; currentAudio = null; }
+  const listenBtn = document.getElementById('listenBtn');
+  if (listenBtn) { listenBtn.classList.remove('playing'); listenBtn.innerHTML = '&#128266;'; }
 
   // Reset timer and close app button
   resetTimerState();
@@ -2156,6 +2197,8 @@ function markWordDone(idx) {
 // ═══════════════════════════════════════════════════════
 //  VERSE COMPLETE
 // ═══════════════════════════════════════════════════════
+let verseCompletedWaitingForTimer = false;
+
 function onVerseComplete() {
   stopAll(); hideFallbackPanel(); setMicListening(false);
   const key = todayKey();
@@ -2171,10 +2214,14 @@ function onVerseComplete() {
     saveState();
     updateQuranProgress();
   }
-  document.getElementById('completionStreak').textContent = state.streak;
-  document.getElementById('completionTotalRead').textContent = state.totalRead;
-  document.getElementById('completionVerseName').textContent = getTodayVerse().surah;
-  setTimeout(() => goTo('completionScreen'), 600);
+  
+  verseCompletedWaitingForTimer = true;
+  
+  // Start the 60 second countdown timer
+  startTimer();
+  
+  setMicStatus('Verse complete! Waiting for timer\u2026', 'active');
+  showToast('Verse complete! Timer: 60 seconds');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2186,8 +2233,16 @@ let bypassTimer = null;
 let micMode = 'unknown';
 let restartAttempts = 0;
 const MAX_RESTARTS = 3;
+let nativeSpeechRecognition = null;
 
-function supportsRecognition() { return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+function isNativeApp() {
+  return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+}
+
+function supportsRecognition() { 
+  if (isNativeApp()) return true;
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition); 
+}
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
@@ -2196,416 +2251,354 @@ function isIOS() {
 }
 function requestMicPermission() {
   if (!window.isSecureContext) {
-    showToast('Microphone requires a secure connection (HTTPS). Use HTTPS or enable in browser settings.');
+    showToast('Microphone requires HTTPS. Deploy to a secure server.');
     return Promise.resolve(false);
   }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('Microphone permissions are unavailable in this browser.');
+    showToast('Microphone not available on this browser.');
     return Promise.resolve(false);
   }
 
   const request = () => navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     stream.getTracks().forEach(t => t.stop());
-    showToast('Microphone permission granted ✓');
+    showToast('Microphone allowed ✓');
     return true;
   }).catch(err => {
-    console.warn('Mic permission request failed:', err);
-    showToast('Microphone permission required for voice mode.');
+    console.warn('Mic permission error:', err);
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      showToast('Mic blocked. Enable in browser settings.');
+    } else if (err.name === 'NotFoundError') {
+      showToast('No microphone found on this device.');
+    } else {
+      showToast('Mic permission required for voice mode.');
+    }
     return false;
   });
 
   if (navigator.permissions && navigator.permissions.query) {
     return navigator.permissions.query({ name: 'microphone' }).then(status => {
       if (status.state === 'granted') {
-        showToast('Microphone permission already granted ✓');
+        showToast('Mic already allowed ✓');
         return true;
       }
-
-      const request = () => navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        stream.getTracks().forEach(t => t.stop());
-        showToast('Microphone allowed ✓');
-        return true;
-      }).catch(err => {
-        console.warn('Mic permission error:', err);
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-          showToast('Mic blocked. Enable in browser settings.');
-        } else if (err.name === 'NotFoundError') {
-          showToast('No microphone found on this device.');
-        } else {
-          showToast('Mic permission required for voice mode.');
-        }
+      if (status.state === 'denied') {
+        showToast('Mic denied. Enable in Settings > Safari > Permissions.');
         return false;
-      });
-
-      if (navigator.permissions && navigator.permissions.query) {
-        return navigator.permissions.query({ name: 'microphone' }).then(status => {
-          if (status.state === 'granted') {
-            showToast('Mic already allowed ✓');
-            return true;
-          }
-          if (status.state === 'denied') {
-            showToast('Mic denied. Enable in Settings > Safari > Permissions.');
-            return false;
-          }
-          return request();
-        }).catch(() => request());
       }
-
       return request();
-    }
-    function toggleMic() {
-      if (getTodayStatus() === 'read') { showToast('Already completed today! ✓'); return; }
-      if (recognizing || micMode === 'sim') { stopAll(); setMicListening(false); setMicStatus('Tap 🎤 to resume', ''); }
-      else initMic();
-    }
-    function initMic() {
-      restartAttempts = 0;
-      if (!supportsRecognition()) {
-        offerFallback('Speech recognition not supported on this device.');
-        return;
-      }
+    }).catch(() => request());
+  }
 
-      // Use native speech recognition for Capacitor apps
-      if (isNativeApp()) {
-        initNativeSpeechRecognition();
-        return;
-      }
+  return request();
+}
+function toggleMic() {
+  if (getTodayStatus() === 'read') { showToast('Already completed today! ✓'); return; }
+  if (recognizing || micMode === 'sim') { stopAll(); setMicListening(false); setMicStatus('Tap 🎤 to resume', ''); }
+  else initMic();
+}
+function initMic() {
+  restartAttempts = 0;
+  if (!supportsRecognition()) { 
+    offerFallback('Speech recognition not supported on this device.'); 
+    return; 
+  }
 
-      setMicStatus('Requesting microphone access...', '');
+  // Use native speech recognition for Capacitor apps
+  if (isNativeApp()) {
+    initNativeSpeechRecognition();
+    return;
+  }
 
-      if (navigator.permissions && navigator.permissions.query) {
-        navigator.permissions.query({ name: 'microphone' }).then(p => {
-          if (p.state === 'denied') {
-            offerFallback('Microphone denied. Go to Settings > Safari > Permissions > Microphone.');
-          } else {
-            requestMicPermission().then(granted => {
-              if (granted) startSpeechRecognition();
-              else offerFallback('Microphone permission needed. Tap "How to Enable" for steps.');
-            });
-          }
-        }).catch(() => {
-          requestMicPermission().then(granted => {
-            if (granted) startSpeechRecognition();
-            else offerFallback('Mic permission needed. Tap "How to Enable" for help.');
-          });
-        });
+  setMicStatus('Requesting microphone access...', '');
+  
+  if (navigator.permissions && navigator.permissions.query) {
+    navigator.permissions.query({ name: 'microphone' }).then(p => {
+      if (p.state === 'denied') {
+        offerFallback('Microphone denied. Go to Settings > Safari > Permissions > Microphone.');
       } else {
         requestMicPermission().then(granted => {
           if (granted) startSpeechRecognition();
-          else offerFallback('Mic permission needed. Tap "How to Enable" for help.');
+          else offerFallback('Microphone permission needed. Tap "How to Enable" for steps.');
         });
       }
+    }).catch(() => {
+      requestMicPermission().then(granted => {
+        if (granted) startSpeechRecognition();
+        else offerFallback('Mic permission needed. Tap "How to Enable" for help.');
+      });
+    });
+  } else {
+    requestMicPermission().then(granted => {
+      if (granted) startSpeechRecognition();
+      else offerFallback('Mic permission needed. Tap "How to Enable" for help.');
+    });
+  }
+}
+
+// Native speech recognition for Capacitor apps
+let pluginHandle = null;
+
+async function initNativeSpeechRecognition() {
+  setMicStatus('Starting voice recognition...', '');
+  
+  const SR = window.Capacitor && window.Capacitor.Plugins.SpeechRecognition;
+  if (!SR) {
+    showToast('Speech recognition plugin not loaded');
+    offerFallback('Voice recognition not available.');
+    return;
+  }
+  
+  try {
+    const available = await SR.available();
+    if (!available.available) {
+      showToast('Speech recognition not available on this device');
+      offerFallback('Voice recognition not available in this app.');
+      return;
     }
 
-    // Native speech recognition for Capacitor apps
-    async function initNativeSpeechRecognition() {
-      setMicStatus('Starting voice recognition...', '');
-
-      try {
-        const { SpeechRecognition } = window.Capacitor.Plugins;
-
-        if (!SpeechRecognition) {
-          showToast('Speech recognition plugin not available');
-          offerFallback('Voice recognition not available in this app.');
-          return;
-        }
-
-        // Check permission
-        const permissionResult = await SpeechRecognition.requestPermission();
-        if (!permissionResult.value) {
-          showToast('Microphone permission denied');
-          offerFallback('Microphone permission denied. Enable in phone Settings > NurAl > Microphone.');
-          return;
-        }
-
-        // Start native speech recognition
-        nativeSpeechRecognition = await SpeechRecognition.start({
-          language: 'ar-SA',
-          maxResults: 1,
-          prompt: 'Read the Quran verse aloud'
-        });
-
-        nativeSpeechRecognition.addEventListener('result', (event) => {
-          if (event.results && event.results.length > 0) {
-            const transcript = event.results[0].item(0).transcript;
-            const dbg = document.getElementById('debugTranscript');
-            if (dbg) dbg.textContent = '🎤 ' + transcript;
-            processTranscript(transcript);
-          }
-        });
-
-        nativeSpeechRecognition.addEventListener('error', (event) => {
-          logToPage('Native speech error: ' + event.error);
-          if (event.error !== 'no-match') {
-            recognizing = false;
-            offerFallback('Voice recognition error: ' + event.error);
-          }
-        });
-
-        nativeSpeechRecognition.addEventListener('end', () => {
-          if (recognizing && wordsDone < wordsTotal) {
-            // Restart if still listening
-            try { nativeSpeechRecognition.start(); } catch (e) { }
-          }
-        });
-
-        recognizing = true;
-        micMode = 'native';
-        setMicListening(true);
-        setMicStatus('Listening… read the verse aloud', 'active');
-        startBypassTimer();
-        showToast('Voice recognition started');
-
-      } catch (err) {
-        console.error('Native speech init error:', err);
-        showToast('Failed to start voice recognition');
-        offerFallback('Could not start voice recognition. Try the tap mode instead.');
-      }
-    }
-
-    function stopNativeRecognition() {
-      if (nativeSpeechRecognition) {
-        try {
-          nativeSpeechRecognition.stop();
-        } catch (e) { }
-        nativeSpeechRecognition = null;
-      }
-      recognizing = false;
-      setMicListening(false);
-    }
-
-    function startSpeechRecognition() {
-      logToPage('Starting speech recognition, isMobile: ' + isMobile());
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        offerFallback('Speech recognition not supported on this device.');
+    const permResult = await SR.checkPermissions();
+    if (permResult.speechRecognition !== 'granted') {
+      const reqResult = await SR.requestPermissions();
+      if (reqResult.speechRecognition !== 'granted') {
+        showToast('Microphone permission denied');
+        offerFallback('Microphone permission denied. Enable in phone Settings > NurAl > Microphone.');
         return;
       }
-      try {
-        recognition = new SR();
-        recognition.lang = 'ar';
-        recognition.continuous = !isIOS(); // Disable continuous on iOS
-        recognition.interimResults = true;
-        recognition.maxAlternatives = isMobile() ? 1 : 3; // Reduce on mobile
-        recognition.onstart = () => { logToPage('Speech recognition started'); recognizing = true; micMode = 'speech'; restartAttempts = 0; setMicListening(true); setMicStatus('Listening\u2026 read aloud in Arabic', 'active'); startBypassTimer(); showToast('Voice recognition started'); };
-        recognition.onresult = (event) => {
-          logToPage('Speech result received');
-          let allText = '';
-          for (let i = 0; i < event.results.length; i++)
-            for (let a = 0; a < event.results[i].length; a++)
-              allText += ' ' + event.results[i][a].transcript;
-          const dbg = document.getElementById('debugTranscript');
-          if (dbg) dbg.textContent = '\uD83C\uDFA4 ' + allText.trim().slice(-80);
-          processTranscript(allText);
-        };
-        recognition.onerror = (e) => {
-          logToPage('Speech error: ' + e.error);
-          if (e.error === 'no-speech' || e.error === 'aborted') return;
-          recognizing = false;
-          if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { offerFallback('Microphone blocked.'); return; }
-          if (e.error === 'network') { offerFallback('Network error.'); return; }
-          restartAttempts++;
-          if (restartAttempts < MAX_RESTARTS) setTimeout(() => startSpeechRecognition(), 800);
-          else offerFallback('Speech error: ' + e.error);
-        };
-        recognition.onend = () => { logToPage('Speech ended'); if (recognizing && wordsDone < wordsTotal) try { recognition.start(); } catch (e) { } else showToast('Voice recognition stopped'); };
-        recognition.start();
-      } catch (err) { logToPage('Error starting mic: ' + err.message); offerFallback('Could not start mic: ' + err.message); }
     }
-    function offerFallback(reason) {
-      recognizing = false; setMicListening(false);
-      setTimeout(() => {
-        const p = document.getElementById('fallbackPanel');
-        if (p) { p.style.display = 'flex'; document.getElementById('fallbackReason').textContent = reason; }
-        setMicStatus('Choose a reading mode \u2193', 'error');
-      }, 1000);
+
+    // Remove old listeners to avoid duplicates
+    await SR.removeAllListeners();
+
+    // Listen for results
+    await SR.addListener('partialResults', (data) => {
+      if (data.matches && data.matches.length > 0) {
+        const transcript = data.matches[0];
+        const dbg = document.getElementById('debugTranscript');
+        if (dbg) dbg.textContent = '🎤 ' + transcript;
+        processTranscript(transcript);
+      }
+    });
+
+    // Listen for errors
+    await SR.addListener('error', (event) => {
+      logToPage('Native speech error: ' + event.error);
+      if (event.error !== 'no-match' && event.error !== 'no_speech') {
+        recognizing = false;
+        offerFallback('Voice recognition error: ' + event.error);
+      }
+    });
+
+    // Start native speech recognition
+    await SR.start({
+      language: 'ar-SA',
+      maxResults: 5,
+      prompt: 'Read the Quran verse aloud',
+      partialResults: true,
+      popup: false
+    });
+
+    recognizing = true;
+    micMode = 'native';
+    setMicListening(true);
+    setMicStatus('Listening… read the verse aloud', 'active');
+    startBypassTimer();
+    showToast('Voice recognition started');
+
+  } catch (err) {
+    console.error('Native speech init error:', err);
+    showToast('Failed to start voice recognition: ' + err.message);
+    offerFallback('Could not start voice recognition. Try the tap mode instead.');
+  }
+}
+
+async function stopNativeRecognition() {
+  try {
+    const SR = window.Capacitor && window.Capacitor.Plugins.SpeechRecognition;
+    if (SR) {
+      await SR.stop();
+      await SR.removeAllListeners();
     }
-    function stopRecognition() {
+  } catch(e) {}
+  recognizing = false;
+  setMicListening(false);
+}
+
+function startSpeechRecognition() {
+  logToPage('Starting speech recognition, isMobile: ' + isMobile());
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    offerFallback('Speech recognition not supported on this device.');
+    return;
+  }
+  try {
+    recognition = new SR();
+    recognition.lang = 'ar';
+    recognition.continuous = !isIOS(); // Disable continuous on iOS
+    recognition.interimResults = true;
+    recognition.maxAlternatives = isMobile() ? 1 : 3; // Reduce on mobile
+    recognition.onstart = () => { logToPage('Speech recognition started'); recognizing = true; micMode = 'speech'; restartAttempts = 0; setMicListening(true); setMicStatus('Listening\u2026 read aloud in Arabic', 'active'); startBypassTimer(); showToast('Voice recognition started'); };
+    recognition.onresult = (event) => {
+      logToPage('Speech result received');
+      let allText = '';
+      for (let i = 0; i < event.results.length; i++)
+        for (let a = 0; a < event.results[i].length; a++)
+          allText += ' ' + event.results[i][a].transcript;
+      const dbg = document.getElementById('debugTranscript');
+      if (dbg) dbg.textContent = '\uD83C\uDFA4 ' + allText.trim().slice(-80);
+      processTranscript(allText);
+    };
+    recognition.onerror = (e) => {
+      logToPage('Speech error: ' + e.error);
+      if (e.error === 'no-speech' || e.error === 'aborted') return;
       recognizing = false;
-      if (recognition) { try { recognition.abort(); } catch (e) { } recognition = null; }
-    }
-    function stripAr(s) {
-      return s
-        .replace(/[\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g, '')
-        .replace(/[\u0622\u0623\u0625]/g, '\u0627')
-        .replace(/\u0624/g, '\u0648').replace(/\u0626/g, '\u064A')
-        .replace(/\s+/g, ' ').trim();
-    }
-    // Calculate similarity between two words (0-1, where 1 is identical)
-    function wordSimilarity(a, b) {
-      if (a === b) return 1;
-      if (!a || !b) return 0;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { offerFallback('Microphone blocked.'); return; }
+      if (e.error === 'network') { offerFallback('Network error.'); return; }
+      restartAttempts++;
+      if (restartAttempts < MAX_RESTARTS) setTimeout(() => startSpeechRecognition(), 800);
+      else offerFallback('Speech error: ' + e.error);
+    };
+    recognition.onend = () => { logToPage('Speech ended'); if (recognizing && wordsDone < wordsTotal) try { recognition.start(); } catch(e) {} else showToast('Voice recognition stopped'); };
+    recognition.start();
+  } catch(err) { logToPage('Error starting mic: ' + err.message); offerFallback('Could not start mic: ' + err.message); }
+}
+function offerFallback(reason) {
+  recognizing = false; setMicListening(false);
+  setTimeout(() => {
+    const p = document.getElementById('fallbackPanel');
+    if (p) { p.style.display = 'flex'; document.getElementById('fallbackReason').textContent = reason; }
+    setMicStatus('Choose a reading mode \u2193', 'error');
+  }, 1000);
+}
+function stopRecognition() {
+  recognizing = false;
+  if (recognition) { try { recognition.abort(); } catch(e) {} recognition = null; }
+}
+function stripAr(s) {
+  return s
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED]/g, '')
+    .replace(/[\u0622\u0623\u0625]/g, '\u0627')
+    .replace(/\u0624/g, '\u0648').replace(/\u0626/g, '\u064A')
+    .replace(/\s+/g, ' ').trim();
+}
+// Calculate similarity between two words (0-1, where 1 is identical)
+function wordSimilarity(a, b) {
+  if (a === b) return 1;
+  if (!a || !b) return 0;
 
-      const longer = a.length > b.length ? a : b;
-      const shorter = a.length > b.length ? b : a;
+  const longer = a.length > b.length ? a : b;
+  const shorter = a.length > b.length ? b : a;
 
-      // For very short words, require exact match
-      if (shorter.length <= 2) {
-        return a === b ? 1 : 0;
+  // For very short words, require exact match
+  if (shorter.length <= 2) {
+    return a === b ? 1 : 0;
+  }
+
+  // Check if one contains the other (strong signal)
+  if (longer.includes(shorter)) {
+    return 0.85;
+  }
+  if (shorter.includes(longer.substring(0, shorter.length - 1))) {
+    return 0.75;
+  }
+
+  // Count matching characters in sequence
+  let matches = 0;
+  let j = 0;
+  for (let i = 0; i < longer.length && j < shorter.length; i++) {
+    if (longer[i] === shorter[j]) {
+      matches++;
+      j++;
+    } else {
+      // Skip extra characters in longer word
+      if (i + 1 < longer.length && longer[i + 1] === shorter[j]) continue;
+      // Skip missing character in longer word
+      if (j + 1 < shorter.length && longer[i] === shorter[j + 1]) { j++; i--; }
+    }
+  }
+
+  return matches / longer.length;
+}
+
+function processTranscript(transcript) {
+  if (!transcript.trim()) return;
+  
+  // Use extra verse if available, otherwise use today's verse
+  const v = currentExtraVerse || getTodayVerse();
+  const tClean = stripAr(transcript);
+
+  // Only match the CURRENT word (at wordsDone index)
+  // User must speak words in sequence
+  if (wordsDone >= wordsTotal) return;
+
+  const currentWord = stripAr(v.words[wordsDone]);
+  if (currentWord.length === 0) {
+    markWordDone(wordsDone);
+    return;
+  }
+
+  // Split transcript into words and check for matches
+  const spokenWords = tClean.split(/\s+/).filter(w => w.length > 0);
+
+  for (const spoken of spokenWords) {
+    // Calculate similarity
+    const similarity = wordSimilarity(spoken, currentWord);
+
+    // Acceptance threshold based on word length
+    // Short words need higher similarity, longer words can be more lenient
+    let threshold;
+    if (currentWord.length <= 2) threshold = 1.0;      // Exact match only
+    else if (currentWord.length <= 4) threshold = 0.70; // Allow variation
+    else threshold = 0.65;                              // More lenient for long words
+
+    if (similarity >= threshold) {
+      markWordDone(wordsDone);
+      return;
+    }
+  }
+}
+let simInterval = null;
+function startSimulation() {
+  stopAll(); micMode = 'sim'; setMicListening(true);
+  setMicStatus('\u25B6 Auto-demo: words will highlight automatically', 'active');
+  hideFallbackPanel(); startBypassTimer();
+  const v = getTodayVerse();
+  const remaining = v.words.length - wordsDone;
+  let i = 0;
+  simInterval = setInterval(() => {
+    if (i < remaining) {
+      markWordDone(wordsDone + i);
+      i++;
+      if (i === remaining) {
+        clearInterval(simInterval);
+        simInterval = null;
+        showToast('Demo complete! \u2714');
       }
-
-      // Check if one contains the other (strong signal)
-      if (longer.includes(shorter)) {
-        return 0.85;
-      }
-      if (shorter.includes(longer.substring(0, shorter.length - 1))) {
-        return 0.75;
-      }
-
-      // Count matching characters in sequence
-      let matches = 0;
-      let j = 0;
-      for (let i = 0; i < longer.length && j < shorter.length; i++) {
-        if (longer[i] === shorter[j]) {
-          matches++;
-          j++;
-        } else {
-          // Skip extra characters in longer word
-          if (i + 1 < longer.length && longer[i + 1] === shorter[j]) continue;
-          // Skip missing character in longer word
-          if (j + 1 < shorter.length && longer[i] === shorter[j + 1]) { j++; i--; }
-        }
-      }
-
-      return matches / longer.length;
     }
-
-    function processTranscript(transcript) {
-      if (!transcript.trim()) return;
-
-      // Use extra verse if available, otherwise use today's verse
-      const v = currentExtraVerse || getTodayVerse();
-      const tClean = stripAr(transcript);
-
-      // Only match the CURRENT word (at wordsDone index)
-      // User must speak words in sequence
-      if (wordsDone >= wordsTotal) return;
-
-      const currentWord = stripAr(v.words[wordsDone]);
-      if (currentWord.length === 0) {
-        markWordDone(wordsDone);
-        return;
-      }
-
-      // Split transcript into words and check for matches
-      const spokenWords = tClean.split(/\s+/).filter(w => w.length > 0);
-
-      for (const spoken of spokenWords) {
-        // Calculate similarity
-        const similarity = wordSimilarity(spoken, currentWord);
-
-        // Acceptance threshold based on word length
-        // Short words need higher similarity, longer words can be more lenient
-        let threshold;
-        if (currentWord.length <= 2) threshold = 1.0;      // Exact match only
-        else if (currentWord.length <= 4) threshold = 0.70; // Allow variation
-        else threshold = 0.65;                              // More lenient for long words
-
-        if (similarity >= threshold) {
-          markWordDone(wordsDone);
-          return;
-        }
-      }
-    }
-    let simInterval = null;
-    function startSimulation() {
-      stopAll(); micMode = 'sim'; setMicListening(true);
-      setMicStatus('\u25B6 Auto-demo: words will highlight automatically', 'active');
-      hideFallbackPanel(); startBypassTimer();
-      const v = getTodayVerse();
-      const remaining = v.words.length - wordsDone;
-      let i = 0;
-      simInterval = setInterval(() => {
-        if (i < remaining) {
-          markWordDone(wordsDone + i);
-          i++;
-          if (i === remaining) {
-            clearInterval(simInterval);
-            simInterval = null;
-            showToast('Demo complete! \u2714');
-          }
-        }
-      }, 600 + Math.random() * 150);
-    }
-    function stopSimulation() { clearInterval(simInterval); simInterval = null; micMode = 'unknown'; }
-    function startTapMode() {
-      stopAll(); micMode = 'tap'; hideFallbackPanel(); setMicListening(true);
-      setMicStatus('\uD83D\uDC46 Tap each word in sequence to mark complete', 'active');
-      document.getElementById('micBtn').innerHTML = '\uD83D\uDC46';
-      document.getElementById('micBtn').style.borderColor = 'var(--amber)';
-      document.getElementById('micBtn').style.color = 'var(--amber)';
-      document.getElementById('micBtn').onclick = () => { if (micMode === 'tap') stopTapMode(); };
-      startBypassTimer();
-      document.querySelectorAll('#arabicVerse .word').forEach((w, i) => {
-        w.style.cursor = 'pointer';
-        w.style.userSelect = 'none';
-        w.classList.add('tap-mode');
-        w.onclick = (e) => {
-          e.stopPropagation();
-          if (micMode !== 'tap') return;
-          if (i === wordsDone) {
-            markWordDone(i);
-            if (i + 1 === wordsTotal) showToast('Verse complete! \u2714');
-          } else if (i < wordsDone) {
-            showToast('Already done');
-          } else {
-            showToast('Next: word #' + (wordsDone + 1));
-          }
-        };
-      });
-    }
-    function stopTapMode() {
-      micMode = 'unknown';
-      setMicListening(false);
-      setMicStatus('Tap \uD83C\uDFA4 to try speech or continue tapping', '');
-      document.getElementById('micBtn').innerHTML = '&#127908;';
-      document.getElementById('micBtn').style.borderColor = '';
-      document.getElementById('micBtn').style.color = '';
-      document.getElementById('micBtn').onclick = toggleMic;
-      document.querySelectorAll('#arabicVerse .word').forEach(w => {
-        w.style.cursor = 'default';
-        w.style.userSelect = '';
-        w.classList.remove('tap-mode');
-        w.onclick = null;
-      });
-      document.querySelectorAll('#arabicVerse .word').forEach(w => { w.style.cursor = ''; w.onclick = null; });
-    }
-    function stopAll() { stopRecognition(); stopSimulation(); stopTapMode(); stopNativeRecognition(); clearBypassTimer(); }
-    function hideFallbackPanel() { const p = document.getElementById('fallbackPanel'); if (p) p.style.display = 'none'; }
-    function setMicListening(on) {
-      document.getElementById('micBtn').classList.toggle('listening', on);
-      document.getElementById('waveform').classList.toggle('visible', on);
-    }
-    function setMicStatus(text, cls) {
-      const el = document.getElementById('micStatus');
-      el.textContent = text;
-      el.className = 'mic-status' + (cls ? ' ' + cls : '');
-    }
-    function startBypassTimer() {
-      bypassTimer = setTimeout(() => { document.getElementById('bypassBtn').classList.add('visible'); }, 30000);
-    }
-    function clearBypassTimer() { clearTimeout(bypassTimer); }
-
-    // ═══════════════════════════════════════════════════════
-    //  SKIP / BYPASS  — now uses weekly skip logic
-    // ═══════════════════════════════════════════════════════
-    function showBypassModal() {
-      const title = document.getElementById('skipModalTitle');
-      const body = document.getElementById('skipModalBody');
-      const btn = document.getElementById('skipModalPrimaryBtn');
-      if (skipAvailable()) {
-        title.textContent = 'Use Weekly Skip';
-        body.innerHTML = 'You have <strong>1 weekly skip available</strong>. Using it marks today as excused \u2014 your streak is fully protected. Your skip resets in 7 days.';
-        btn.textContent = 'Use Weekly Skip \u2713';
-        btn.disabled = false;
-        btn.style.opacity = '';
+  }, 600 + Math.random() * 150);
+}
+function stopSimulation() { clearInterval(simInterval); simInterval = null; micMode = 'unknown'; }
+function startTapMode() {
+  stopAll(); micMode = 'tap'; hideFallbackPanel(); setMicListening(true);
+  setMicStatus('\uD83D\uDC46 Tap each word in sequence to mark complete', 'active');
+  document.getElementById('micBtn').innerHTML = '\uD83D\uDC46';
+  document.getElementById('micBtn').style.borderColor = 'var(--amber)';
+  document.getElementById('micBtn').style.color = 'var(--amber)';
+  document.getElementById('micBtn').onclick = () => { if (micMode === 'tap') stopTapMode(); };
+  startBypassTimer();
+  document.querySelectorAll('#arabicVerse .word').forEach((w, i) => {
+    w.style.cursor = 'pointer';
+    w.style.userSelect = 'none';
+    w.classList.add('tap-mode');
+    w.onclick = (e) => {
+      e.stopPropagation();
+      if (micMode !== 'tap') return;
+      if (i === wordsDone) {
+        markWordDone(i);
+        if (i + 1 === wordsTotal) showToast('Verse complete! \u2714');
+      } else if (i < wordsDone) {
+        showToast('Already done');
       } else {
-        const days = daysUntilSkipReset();
-        title.textContent = 'No Skip Available';
-        body.innerHTML = 'You\u2019ve already used your weekly skip. It resets in <strong>' + days + ' day' + (days !== 1 ? 's' : '') + '</strong>.<br><br>Go back and read the verse, or close the app and try again later.';
-        btn.textContent = 'Skip Unavailable';
-        btn.disabled = true;
-        btn.style.opacity = '0.4';
+        showToast('Next: word #' + (wordsDone + 1));
       }
     };
   });
@@ -2626,7 +2619,7 @@ function stopTapMode() {
   });
   document.querySelectorAll('#arabicVerse .word').forEach(w => { w.style.cursor = ''; w.onclick = null; });
 }
-function stopAll() { stopRecognition(); stopSimulation(); stopTapMode(); clearBypassTimer(); }
+function stopAll() { stopRecognition(); stopSimulation(); stopTapMode(); stopNativeRecognition(); clearBypassTimer(); }
 function hideFallbackPanel() { const p = document.getElementById('fallbackPanel'); if (p) p.style.display = 'none'; }
 function setMicListening(on) {
   document.getElementById('micBtn').classList.toggle('listening', on);
@@ -2839,12 +2832,14 @@ function startTimer() {
 }
 
 function resetTimer() {
+  verseCompletedWaitingForTimer = false;
   startTimer();
 }
 
 function resetTimerState() {
   clearInterval(timerInterval);
   timerSeconds = 60;
+  verseCompletedWaitingForTimer = false;
   updateTimerDisplay();
 
   const timerBtn = document.getElementById('timerBtn');
@@ -2874,26 +2869,42 @@ function timerExpired() {
     timerBtn.classList.add('expired');
   }
 
-  // Make close app button visible
+  // Always show close button when timer ends, regardless of reading completion
   if (closeAppBtn) {
     closeAppBtn.classList.add('visible');
   }
+  
+  if (verseCompletedWaitingForTimer) {
+    setMicStatus('Time\u2019s up! Close app or show another verse', 'active');
+    showToast('Timer complete! You can close or show another verse');
+  } else {
+    setMicStatus('Time\u2019s up! Close app or continue reading', 'active');
+    showToast('Time\u2019s up! Close or continue without timer');
+  }
 }
 
-function closeApp() {
-  // Try to close the window (works for windows opened by scripts)
-  window.close();
-  // Fallback: show a message
-  showToast('You can now close this tab');
-  // For mobile: try to go back in history
-  if (window.history.length > 1) {
-    window.history.back();
+async function closeApp() {
+  if (isNativeApp()) {
+    try {
+      const { App } = await import('@capacitor/app');
+      await App.exitApp();
+    } catch(e) {
+      console.error('Exit app error:', e);
+      navigator.app.exitApp();
+    }
+  } else {
+    window.close();
+    if (window.history.length > 1) {
+      window.history.back();
+    }
   }
 }
 
 // ═══════════════════════════════════════════════════════
 //  SHOW ANOTHER VERSE
 // ═══════════════════════════════════════════════════════
+let currentExtraVerse = null;
+
 function showAnotherVerse() {
   // Get a random verse that's not today's verse
   const todayIdx = verseIdxForDate(todayKey());
@@ -2902,29 +2913,119 @@ function showAnotherVerse() {
     newIdx = Math.floor(Math.random() * VERSES.length);
   } while (newIdx === todayIdx);
 
-  const newVerse = VERSES[newIdx];
+  currentExtraVerse = VERSES[newIdx];
 
   // Update the display
-  wordsTotal = newVerse.words.length;
+  wordsTotal = currentExtraVerse.words.length;
   wordsDone = 0;
+  verseCompletedWaitingForTimer = false;
 
-  document.getElementById('surahBadge').textContent = newVerse.surah;
-  document.getElementById('arabicVerse').innerHTML = newVerse.words.map((w, i) =>
+  document.getElementById('surahBadge').textContent = currentExtraVerse.surah;
+  document.getElementById('arabicVerse').innerHTML = currentExtraVerse.words.map((w, i) =>
     '<span class="word ' + (i === 0 ? 'current' : '') + '" data-idx="' + i + '">' + w + '</span> '
   ).join('');
-  document.getElementById('translit').textContent = state.showTranslit ? newVerse.translit : '';
-  document.getElementById('translation').textContent = '"' + newVerse.translation + '"';
-  document.getElementById('summaryArabic').textContent = newVerse.arabic;
-  document.getElementById('summaryTranslation').textContent = '"' + newVerse.translation + '"';
+  document.getElementById('translit').textContent = state.showTranslit ? currentExtraVerse.translit : '';
+  document.getElementById('translation').textContent = '"' + currentExtraVerse.translation + '"';
+  document.getElementById('summaryArabic').textContent = currentExtraVerse.arabic;
+  document.getElementById('summaryTranslation').textContent = '"' + currentExtraVerse.translation + '"';
   updateProgress();
 
   // Reset timer
   resetTimer();
 
-  // Reset mic status
+  // Hide close app button
+  const closeAppBtn = document.getElementById('closeAppBtn');
+  if (closeAppBtn) closeAppBtn.classList.remove('visible');
+
+  // Enable mic and start listening
+  initMic();
+
   setMicStatus('Tap 🎤 to start reading aloud', '');
 
-  showToast('New verse loaded');
+  showToast('New verse loaded - listening active');
+}
+
+// ═══════════════════════════════════════════════════════
+//  AUDIO PLAYBACK
+// ═══════════════════════════════════════════════════════
+let currentAudioQueue = [];
+let currentAudio = null;
+
+function playVerseAudio() {
+  const listenBtn = document.getElementById('listenBtn');
+  
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudioQueue = [];
+    currentAudio = null;
+    if (listenBtn) {
+      listenBtn.classList.remove('playing');
+      listenBtn.innerHTML = '&#128266;';
+    }
+    return; // stops audio if playing
+  }
+
+  const v = currentExtraVerse || getTodayVerse();
+  let refMatches = v.surah.match(/(\d+):(\d+)(?:-(\d+))?/);
+  if (!refMatches) {
+    showToast('Could not parse verse reference');
+    return;
+  }
+  
+  let surah = parseInt(refMatches[1]);
+  let startAyah = parseInt(refMatches[2]);
+  let endAyah = refMatches[3] ? parseInt(refMatches[3]) : startAyah;
+  
+  currentAudioQueue = [];
+  for (let i = startAyah; i <= endAyah; i++) {
+    currentAudioQueue.push(`${surah}:${i}`);
+  }
+  
+  if (listenBtn) {
+    listenBtn.classList.add('playing');
+    listenBtn.innerHTML = '&#9208;'; // Pause icon
+  }
+  playNextAudioInQueue();
+}
+
+function playNextAudioInQueue() {
+  if (currentAudioQueue.length === 0) {
+    currentAudio = null;
+    const listenBtn = document.getElementById('listenBtn');
+    if (listenBtn) {
+      listenBtn.classList.remove('playing');
+      listenBtn.innerHTML = '&#128266;';
+    }
+    return;
+  }
+  let ayahRef = currentAudioQueue.shift();
+  showToast('Loading audio...');
+  fetch(`https://api.alquran.cloud/v1/ayah/${ayahRef}/ar.alafasy`)
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.data && data.data.audio) {
+        currentAudio = new Audio(data.data.audio);
+        currentAudio.onended = () => {
+          playNextAudioInQueue();
+        };
+        currentAudio.play().catch(e => {
+          console.error(e);
+          showToast('Failed to play audio');
+          currentAudioQueue = [];
+          playNextAudioInQueue();
+        });
+      } else {
+        showToast('Audio not found');
+        currentAudioQueue = [];
+        playNextAudioInQueue();
+      }
+    })
+    .catch(e => {
+      console.error(e);
+      showToast('Error loading audio');
+      currentAudioQueue = [];
+      playNextAudioInQueue();
+    });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2965,5 +3066,4 @@ if (!supportsRecognition()) {
 }
 </script>
 </body>
-
 </html>

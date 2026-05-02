@@ -1,0 +1,27 @@
+{
+  "name": "quranify",
+  "version": "1.0.0",
+  "description": "NurAl - Daily Quran Companion",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run copy && npx cap sync",
+    "copy": "echo 'Files ready'",
+    "ios": "npx cap run ios",
+    "android": "npx cap run android"
+  },
+  "keywords": [
+    "quran",
+    "islam",
+    "daily-verse"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor/android": "^7.6.1",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/cli": "^7.6.1",
+    "@capacitor/core": "^7.6.1",
+    "@capacitor/ios": "^7.6.1"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "appId": "com.nural.quran",
+  "appName": "NurAl",
+  "webDir": "app",
+  "android": {
+    "allowMixedContent": true,
+    "minSdkVersion": 24
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
