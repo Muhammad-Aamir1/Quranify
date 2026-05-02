@@ -1364,6 +1364,7 @@ html, body {
     <div class="lock-time" id="lockTime">--:--</div>
     <div class="lock-actions">
       <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">◑</button>
+      <button class="icon-btn" onclick="playVerseAudio()" title="Play verse audio" id="audioBtn">▶</button>
       <button class="icon-btn" onclick="goTo('homeScreen')" title="Dashboard">⊞</button>
     </div>
   </div>
@@ -2732,6 +2733,66 @@ function scheduleNotification(time) {
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
   localStorage.setItem("quranify_reminder", time);
   showToast("Daily reminder set for " + time);
+}
+
+// ═════════════════════════════════════════════════════
+//  AUDIO PLAYBACK
+// ═════════════════════════════════════════════════════
+let audioPlayer = null;
+let isPlaying = false;
+
+function playVerseAudio() {
+  const v = getTodayVerse();
+  if (!v || !v.surah) {
+    showToast('Audio not available for this verse');
+    return;
+  }
+
+  // Parse surah number from surah string like "Al-Baqarah · 2:286"
+  const match = v.surah.match(/(\d+):/);
+  if (!match) {
+    showToast('Could not determine surah number');
+    return;
+  }
+  const surahNum = parseInt(match[1]);
+
+  const btn = document.getElementById('audioBtn');
+
+  if (isPlaying && audioPlayer) {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+    isPlaying = false;
+    btn.textContent = '▶';
+    btn.style.color = '';
+    return;
+  }
+
+  // Using Islamic Network CDN for full surah audio
+  const audioUrl = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${surahNum}.mp3`;
+
+  if (!audioPlayer) {
+    audioPlayer = new Audio();
+    audioPlayer.onended = () => {
+      isPlaying = false;
+      btn.textContent = '▶';
+      btn.style.color = '';
+    };
+    audioPlayer.onerror = () => {
+      isPlaying = false;
+      btn.textContent = '▶';
+      btn.style.color = '';
+      showToast('Audio unavailable');
+    };
+  }
+
+  audioPlayer.src = audioUrl;
+  audioPlayer.play().then(() => {
+    isPlaying = true;
+    btn.textContent = '⏸';
+    btn.style.color = 'var(--emerald)';
+  }).catch(() => {
+    showToast('Tap to allow audio playback');
+  });
 }
 
 // ═══════════════════════════════════════════════════════
