@@ -1318,97 +1318,38 @@ html, body {
 
     <!-- Step 1: Welcome -->
     <div class="onboard-step active" id="ob-step-1">
-      <div class="onboard-dots">
-        <div class="onboard-dot active"></div><div class="onboard-dot"></div><div class="onboard-dot"></div>
-      </div>
+       <div class="onboard-dots">
+         <div class="onboard-dot active"></div>
+       </div>
       <div class="onboard-icon">&#x1F4D6;</div>
       <div class="onboard-title">Welcome to <span>NurAl!</span></div>
       <div class="onboard-body">
         Your daily Quran companion.<br>One verse. Every morning. Read aloud.<br>
         <br>Build the habit of daily Quran reading — one verse at a time, every single day.
       </div>
-      <button class="onboard-btn primary" onclick="obNext(2)">Get Started &#8594;</button>
-      <button class="onboard-btn secondary" onclick="obSkipOnboarding()">Skip setup</button>
-    </div>
+      <button class="onboard-btn primary" onclick="showOnboardingStep(2)">Get Started &#8594;</button>
+       <button class="onboard-btn secondary" onclick="goTo('lockScreen')">Skip setup</button>
+     </div>
 
-    <!-- Step 2: Screen Lock Consent -->
+    <!-- Step2: Set Reminder -->
     <div class="onboard-step" id="ob-step-2">
       <div class="onboard-dots">
-        <div class="onboard-dot"></div><div class="onboard-dot active"></div><div class="onboard-dot"></div>
+        <div class="onboard-dot"></div><div class="onboard-dot active"></div>
       </div>
-      <div class="onboard-icon">&#x1F512;</div>
-      <div class="onboard-title">Daily <span>Screen Lock</span></div>
+      <div class="onboard-icon">⏰</div>
+      <div class="onboard-title">Set Daily <span>Reminder</span></div>
       <div class="onboard-body">
-        NurAl can show a verse on your screen each morning and keep it active until you&apos;ve read it aloud. This is <strong>completely optional</strong> and you can turn it off anytime.
+        Choose a time for NurAl to remind you to read your daily verse. A notification will be sent at your selected time each day.
       </div>
-      <div class="onboard-consent-box">
-        <div class="onboard-consent-row">
-          <div class="consent-icon">&#x1F50F;</div>
-          <div class="consent-text-wrap">
-            <div class="consent-label">What this does</div>
-            <div class="consent-desc">Shows a verse overlay on your first phone use each day. The overlay closes once you finish reading aloud.</div>
-          </div>
-        </div>
-        <div class="onboard-consent-row">
-          <div class="consent-icon">&#x1F6AB;</div>
-          <div class="consent-text-wrap">
-            <div class="consent-label">What it does NOT do</div>
-            <div class="consent-desc">Does not access messages, contacts, camera, or any personal data. Cannot prevent emergency calls.</div>
-          </div>
-        </div>
-        <div class="onboard-consent-row">
-          <div class="consent-icon">&#x2699;&#xFE0F;</div>
-          <div class="consent-text-wrap">
-            <div class="consent-label">You stay in control</div>
-            <div class="consent-desc">Disable this anytime in Settings &rarr; Screen Lock. One weekly skip is always available.</div>
-          </div>
-        </div>
+      <div style="width:100%; margin-bottom:24px;">
+        <input type="time" id="reminderTime" value="06:00" style="width:100%; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Mono',monospace; font-size:0.9rem; letter-spacing:0.1em;">
       </div>
-      <div class="onboard-checkbox-row" id="consentCheckRow" onclick="toggleConsentCheck()">
-        <div class="onboard-checkbox" id="consentCheckbox"></div>
-        <div class="onboard-checkbox-label">I understand and consent to the daily screen lock feature</div>
-      </div>
-      <button class="onboard-btn primary" id="obConsentBtn" onclick="obAcceptConsent()" disabled>Enable Screen Lock &#8594;</button>
-      <button class="onboard-btn secondary" onclick="obDeclineConsent()">No thanks, skip this</button>
-    </div>
-
-    <!-- Step 3: Weekly Skip -->
-    <div class="onboard-step" id="ob-step-3">
-      <div class="onboard-dots">
-        <div class="onboard-dot"></div><div class="onboard-dot"></div><div class="onboard-dot active"></div>
-      </div>
-      <div class="onboard-icon">&#x1F4C5;</div>
-      <div class="onboard-title">Your <span>Weekly Skip</span></div>
-      <div class="onboard-body">
-        Life happens. Once per week, you can skip the daily reading without breaking your streak or triggering the lock.
-      </div>
-      <div class="onboard-consent-box">
-        <div class="onboard-consent-row">
-          <div class="consent-icon">&#x2705;</div>
-          <div class="consent-text-wrap">
-            <div class="consent-label">1 skip per rolling 7 days</div>
-            <div class="consent-desc">Your skip resets exactly 7 days after you last used it &mdash; not on a fixed Sunday/Monday boundary.</div>
-          </div>
-        </div>
-        <div class="onboard-consent-row">
-          <div class="consent-icon">&#x1F525;</div>
-          <div class="consent-text-wrap">
-            <div class="consent-label">Streak is protected</div>
-            <div class="consent-desc">Using a skip marks the day as &ldquo;excused&rdquo; &mdash; your streak does not reset. Skipped days show in amber on your heatmap.</div>
-          </div>
-        </div>
-        <div class="onboard-consent-row">
-          <div class="consent-icon">&#x26A0;&#xFE0F;</div>
-          <div class="consent-text-wrap">
-            <div class="consent-label">Missing days without a skip</div>
-            <div class="consent-desc">If you miss a day without using your skip, your streak resets to zero. The screen lock will still activate the next morning.</div>
-          </div>
-        </div>
-      </div>
-      <button class="onboard-btn primary" onclick="obFinish()">Start Reading &#8594;</button>
+      <button class="onboard-btn primary" onclick="setReminderAndStart()">Set Reminder & Start Reading →</button>
+      <button class="onboard-btn secondary" onclick="skipReminder()">Skip for Now</button>
     </div>
 
   </div>
+</div>
 </div>
 
 <!-- Network Banner -->
@@ -1581,10 +1522,27 @@ html, body {
             <div class="today-status" id="todayStatus">Pending</div>
           </div>
           <button class="read-btn" onclick="goTo('lockScreen')" id="readNowBtn">Read Now →</button>
-        </div>
-      </div>
     </div>
 
+    <!-- Step 2: Set Reminder -->
+    <div class="onboard-step" id="ob-step-2">
+      <div class="onboard-dots">
+        <div class="onboard-dot"></div><div class="onboard-dot active"></div>
+      </div>
+      <div class="onboard-icon">⏰</div>
+      <div class="onboard-title">Set Daily <span>Reminder</span></div>
+      <div class="onboard-body">
+        Choose a time for NurAl to remind you to read your daily verse. A notification will be sent at your selected time each day.
+      </div>
+      <div style="width:100%; margin-bottom:24px;">
+        <input type="time" id="reminderTime" value="06:00" style="width:100%; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'DM Mono',monospace; font-size:0.9rem; letter-spacing:0.1em;">
+      </div>
+      <button class="onboard-btn primary" onclick="setReminderAndStart()">Set Reminder & Start Reading →</button>
+      <button class="onboard-btn secondary" onclick="skipReminder()">Skip for Now</button>
+    </div>
+
+  </div>
+</div>
     <!-- Streak heatmap -->
     <div>
       <div class="section-title">Last 28 Days</div>
@@ -2736,6 +2694,44 @@ function updateQuranProgress() {
   const percentage = ((versesRead / TOTAL_QURAN_VERSES) * 100).toFixed(2);
 
   progressValue.textContent = percentage + '%';
+}
+
+// ═══════════════════════════════════════════════════
+//  ONBOARDING REMINDER FLOW
+// ═══════════════════════════════════════════════════
+function showOnboardingStep(step) {
+  document.querySelectorAll(".onboard-step").forEach(s => s.classList.remove("active"));
+  document.getElementById("ob-step-" + step).classList.add("active");
+}
+
+function setReminderAndStart() {
+  const timeInput = document.getElementById("reminderTime").value;
+  if (timeInput) {
+    state.reminderTime = timeInput;
+    state.onboardingDone = true;
+    saveState();
+    if ("Notification" in window && Notification.permission === "granted") {
+      scheduleNotification(timeInput);
+    } else if ("Notification" in window && Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") scheduleNotification(timeInput);
+      });
+    }
+    showToast("Reminder set for " + timeInput);
+  }
+  goTo("lockScreen");
+}
+
+function skipReminder() {
+  state.onboardingDone = true;
+  saveState();
+  goTo("lockScreen");
+}
+
+function scheduleNotification(time) {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+  localStorage.setItem("quranify_reminder", time);
+  showToast("Daily reminder set for " + time);
 }
 
 // ═══════════════════════════════════════════════════════
