@@ -2665,18 +2665,18 @@
       requestMicPermission().then(() => goTo('lockScreen'));
     }
     async function obFinish() {
-      try {
-        state.onboardingDone = true;
-        saveState();
-        try { await requestMicPermission(); } catch(e) { console.log('Mic permission skipped:', e); }
-        document.querySelectorAll('.onboard-step').forEach(s => s.classList.remove('active'));
-        document.getElementById('ob-step-schedule').classList.add('active');
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const tzEl = document.getElementById('userTimezone');
-        if (tzEl) tzEl.textContent = timezone;
-      } catch(e) {
-        console.error('Error in obFinish:', e);
-        alert('Error: ' + e.message);
+      state.onboardingDone = true;
+      saveState();
+      await requestMicPermission();
+      document.querySelectorAll('.onboard-step').forEach(s => s.classList.remove('active'));
+      document.getElementById('ob-step-schedule').classList.add('active');
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      document.getElementById('userTimezone').textContent = timezone;
+      
+      // Debug: Check if Capacitor is available
+      console.log('Capacitor available:', typeof Capacitor !== 'undefined');
+      if (typeof Capacitor !== 'undefined') {
+        console.log('LocalNotifications available:', Capacitor.isPluginAvailable('LocalNotifications'));
       }
     }
     

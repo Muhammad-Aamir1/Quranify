@@ -3,8 +3,6 @@ echo ===================================
 echo Building NurAl APK
 echo ===================================
 
-cd /d "C:\My files\My Projects\Quranify"
-
 echo.
 echo [1/3] Syncing files to Android...
 npx cap sync android
@@ -30,6 +28,6 @@ echo.
 echo [3/3] APK Build Complete!
 echo.
 echo APK location:
-echo C:\My files\My Projects\Quranify\android\app\build\outputs\apk\debug\app-debug.apk
+echo android\app\build\outputs\apk\debug\app-debug.apk
 echo.
 pause

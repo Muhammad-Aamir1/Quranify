@@ -324,10 +324,8 @@
     <string name="call_notification_incoming_text">Incoming call</string>
     <string name="call_notification_ongoing_text">Ongoing call</string>
     <string name="call_notification_screening_text">Screening an incoming call</string>
-    <string name="custom_url_scheme">com.nural.quran</string>
-    <string name="my_string">Just a simple string</string>
-    <string name="no_webview_text">This app requires a WebView to work</string>
-    <string name="package_name">com.nural.quran</string>
+    <string name="custom_url_scheme">com.quranify.app</string>
+    <string name="package_name">com.quranify.app</string>
     <string name="search_menu_title">Search</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="title_activity_main">NurAl</string>
@@ -3293,4 +3291,7 @@
         <attr name="android:inflatedId"/>
         <attr name="android:id"/>
     </declare-styleable>
+    <declare-styleable name="bridge_fragment">
+    <attr format="string" name="start_dir"/>
+  </declare-styleable>
 </resources>

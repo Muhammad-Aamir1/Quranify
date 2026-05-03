@@ -1,0 +1,8 @@
+{
+  "appId": "com.quranify.app",
+  "appName": "NurAl",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -2,8 +2,8 @@
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
     <string name="app_name">NurAl</string>
-    <string name="custom_url_scheme">com.nural.quran</string>
-    <string name="package_name">com.nural.quran</string>
+    <string name="custom_url_scheme">com.quranify.app</string>
+    <string name="package_name">com.quranify.app</string>
     <string name="title_activity_main">NurAl</string>
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         
